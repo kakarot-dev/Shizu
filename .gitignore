@@ -1,0 +1,16 @@
+# Packages
+node_modules
+
+# Dist
+dist/
+
+.env
+
+yarn.lock
+
+
+# ormo
+ormconfig.js
+
+#ssl certicficates
+.postgresql

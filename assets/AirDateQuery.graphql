@@ -1,0 +1,36 @@
+query ($search: String) {
+  Media(type: ANIME, search: $search, sort: START_DATE_DESC) {
+    title {
+      romaji
+      english
+      native
+    }
+    status
+    episodes
+    nextAiringEpisode {
+      episode
+      timeUntilAiring
+    }
+    startDate {
+      year
+      month
+      day
+    }
+    id
+    isAdult
+    siteUrl
+    coverImage {
+      large
+      color
+    }
+    studios(isMain: true) {
+      edges {
+        isMain
+        node {
+          name
+          siteUrl
+        }
+      }
+    }
+  }
+}

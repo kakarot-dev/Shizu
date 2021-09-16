@@ -1,0 +1,32 @@
+{
+   "include": ["src"],
+   "exclude": ["dist", "node_modules", "assets"],
+   "compilerOptions": {
+     "rootDir": "src",
+     "outDir": "dist",
+     "module": "commonjs",
+     "target": "es2020",
+     "moduleResolution": "node",
+     "types": [
+       "@types/moment-duration-format",
+     ],
+     "importHelpers": true,
+     "skipLibCheck": true,
+     "resolveJsonModule": true,
+     "strict": true,
+     "noImplicitAny": false,
+     "strictNullChecks": true,
+     "strictFunctionTypes": true,
+     "strictBindCallApply": true,
+     "strictPropertyInitialization": false,
+     "noImplicitThis": true,
+     "alwaysStrict": true,
+     "noUnusedLocals": true,
+     "noUnusedParameters": true,
+     "noFallthroughCasesInSwitch": true,
+     "allowSyntheticDefaultImports": true,
+     "esModuleInterop": true,
+     "pretty": true,
+     "experimentalDecorators": true
+   }
+ }

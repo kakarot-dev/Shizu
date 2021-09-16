@@ -1,0 +1,82 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js install
+
+PATH: 
+  C:\Users\Libni\WebstormProjects\Shizu-master\node_modules\.bin;C:\ProgramData\Oracle\Java\javapath;C:\Python39\Scripts\;C:\Python39\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\Yarn\bin\;C:\Program Files (x86)\;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Users\Libni\AppData\Local\Microsoft\WindowsApps;C:\Program Files (x86)\heroku\bin;C:\Users\Libni\AppData\Roaming\npm;C:\Program Files\JetBrains\WebStorm 2021.2.1\bin;;C:\Users\Libni\AppData\Local\Programs\Microsoft VS Code\bin
+
+Yarn version: 
+  1.22.5
+
+Node version: 
+  16.8.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: connect EHOSTUNREACH 104.16.18.35:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1146:16)
+
+npm manifest: 
+  {
+     "name": "shizu",
+     "version": "4.0.0",
+     "description": "A bot written for fun",
+     "main": "./dist/Shizu.js",
+     "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "auto-build": "tsc -w -p tsconfig.json",
+        "auto-restart": "nodemon ./dist/Shizu",
+        "lint": "eslint . --ext .ts --fix",
+        "start": "node ."
+     },
+     "devDependencies": {
+        "@types/common-tags": "^1.8.0",
+        "@types/glob": "^7.1.3",
+        "@types/lodash": "^4.14.170",
+        "@types/module-alias": "^2.0.0",
+        "@types/ms": "^0.7.31",
+        "@types/node": "^16.6.1",
+        "@typescript-eslint/eslint-plugin": "^4.28.1",
+        "@typescript-eslint/parser": "^4.28.1",
+        "eslint": "^7.29.0",
+        "prisma": "^2.29.0"
+     },
+     "dependencies": {
+        "@iamtraction/google-translate": "^1.1.2",
+        "@types/moment-duration-format": "^2.2.2",
+        "axios": "^0.21.1",
+        "common-tags": "^1.8.0",
+        "discord.js": "^13.1.0",
+        "dotenv": "^10.0.0",
+        "fortnite": "^4.3.2",
+        "get-urls": "aria-development/get-urls",
+        "glob": "^7.1.6",
+        "he": "^1.2.0",
+        "html2markdown": "^1.1.0",
+        "lodash": "^4.17.21",
+        "minecraft-server-util": "^3.5.2",
+        "moment": "^2.29.1",
+        "moment-duration-format": "^2.3.2",
+        "moment-timezone": "^0.5.33",
+        "mongoose": "^5.13.0",
+        "ms": "^2.1.2",
+        "node-cron": "^3.0.0",
+        "reflect-metadata": "^0.1.10",
+        "shoukaku": "kakarot-dev/shoukaku",
+        "sourcebin-wrapper": "^1.6.0",
+        "statuspage.js": "^1.0.17",
+        "tslib": "^2.3.0",
+        "typescript": "^4.3.5"
+     },
+     "engines": {
+        "node": ">=16.6.0",
+        "npm": ">=7.0.0"
+     }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
