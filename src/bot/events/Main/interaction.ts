@@ -85,6 +85,15 @@ abstract class InteractionEvent extends Event {
         console.log(err);
         return interaction.reply(`${err.message}`);
       });
+    } else if (interaction.isContextMenu()) {
+      const menu = this.client.menus.get(interaction.commandName);
+      if (!menu) {
+        return
+      }
+      menu.exec(interaction).catch(err => {
+        console.log(err);
+        return interaction.reply(`${err.message}`);
+      })
     }
     return;
   }
