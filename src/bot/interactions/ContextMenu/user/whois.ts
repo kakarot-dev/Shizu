@@ -4,7 +4,7 @@
 import {
     ContextMenuInteraction, GuildMember, GuildMemberRoleManager, MessageEmbed, User
 } from "discord.js";
-import Menu from "../../struct/Menu";
+import Menu from "../../../struct/Menu";
 
 abstract class whoisInteraction extends Menu {
     protected constructor() {
@@ -34,7 +34,7 @@ abstract class whoisInteraction extends Menu {
             .addFields([
                 {
                     name: "Joined Timestamp",
-                    value: `<t:${Math.round( member.joinedTimestamp as number / 1000 )}:f>`,
+                    value: `<t:${Math.round( member.joinedTimestamp! / 1000 )}:f>`,
                     inline: true
                 },
                 {
@@ -44,7 +44,7 @@ abstract class whoisInteraction extends Menu {
                 },
                 {
                     name: "Badges",
-                    value: this.badges(member.user) ?? "No badges"
+                    value: `${(this.badges(member.user) || "No badges")}`
                 },
                 {
                     name: "Highest role!",
@@ -53,12 +53,12 @@ abstract class whoisInteraction extends Menu {
                 },
                 {
                     name: "Bot",
-                    value: `${member.user.bot ? "nope" : "yep"}`,
+                    value: `${member.user.bot ? "yep" : "nope"}`,
                     inline: true
                 },
                 {
                     name: "Roles",
-                    value: `${this.trimRole(member.roles)}`
+                    value: `${this.trimRole(member.roles) ?? "No roles"}`
                 }
             ])
 
@@ -92,7 +92,7 @@ abstract class whoisInteraction extends Menu {
         if (Number(user.flags) & 1 << 16) string += "<:verified:888438391828541461> "
         if(Number(user.flags) & 1 << 17) string += "<:code:831149878456483841> "
         if (Number(user.flags) & 1 << 18) string += "<:mod:888439129799549038>"
-        return string
+        return string.trim()
     }
 }
 

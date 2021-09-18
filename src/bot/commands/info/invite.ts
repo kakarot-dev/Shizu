@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import Command from "../../struct/Command";
-import { Message, MessageEmbed, ColorResolvable } from "discord.js";
+import { Message, MessageEmbed, ColorResolvable, MessageActionRow, MessageButton } from "discord.js";
 
 abstract class InviteCommand extends Command {
   protected constructor() {
@@ -21,6 +21,17 @@ abstract class InviteCommand extends Command {
   }
 
   public async exec(message: Message, _args: string[], prefix: string) {
+    const row = new MessageActionRow()
+        .addComponents([
+            new MessageButton()
+                .setStyle('LINK')
+                .setURL(`https://discord.com/oauth2/authorize?client_id=${this.client.user.id}&permissions=94319118&redirect_uri=https%3A%2F%2Fdiscord.gg%2Fb7HzMtSYtX&scope=applications.commands%20bot`)
+                .setLabel('Admin Invite link'),
+            new MessageButton()
+                .setStyle('LINK')
+                .setLabel('Non Admin Invite link')
+                .setURL(`https://discord.com/oauth2/authorize?client_id=${this.client.user.id}&permissions=9431911&redirect_uri=https%3A%2F%2Fdiscord.gg%2Fb7HzMtSYtX&scope=applications.commands%20bot`)
+        ])
     const embed = new MessageEmbed()
       .setColor(message.guild?.me!.displayHexColor as ColorResolvable)
       .setTitle(`${this.client.user?.tag} (${prefix})`)
@@ -41,8 +52,18 @@ abstract class InviteCommand extends Command {
         "Vote for me (Voidbots)",
         `[Click](https://voidbots.net/bot/${this.client.user?.id}/vote)`,
         true
-      );
-    await message.reply({ embeds: [embed] });
+      )
+      .addField(
+          "Invite me (Top.gg)",
+          `[Click](https://top.gg/bot/${this.client.user?.id}/invite)`,
+          true
+      )
+      .addField(
+            "Vote for me (Top.gg)",
+            `[Click](https://top.gg/bot/${this.client.user?.id}/vote)`,
+            true
+        )
+    await message.reply({ embeds: [embed], components: [row] });
   }
 }
 export default InviteCommand;

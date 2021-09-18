@@ -30,7 +30,7 @@ abstract class DiscordJsCommand extends Command {
             )
             .setDescription(
                 stripIndents(`
-      1) What data does this bot store?
+     ** 1) What data does this bot store?**
 
 - Guild IDs
 - Channel IDs
@@ -38,18 +38,18 @@ abstract class DiscordJsCommand extends Command {
 - Role IDs
 - User Tags
 
-2) Why do we need the data, and why do we use this data?
+**2) Why do we need the data, and why do we use this data?**
     1) Guilds IDs are stored for every of our database schemas.
     2) Channel IDs are stored for moderation log, anischedule, discord-status, etc.
     3) User IDs are stored for moderation actions (mutes, afk etc).
     4) Role IDs are stored for mute role.
 
-3) Other than Discord, do we share your data with any 3rd parties?
+**3) Other than Discord, do we share your data with any 3rd parties?**
    No, we do not share data with any 3rd parties!
    However, if requested by law enforcement, we will legally need to disclose that information.
 
-4) How can users get data removed, or how can users contact the bot owner?
-   They can contact me, Kakarot#0510
+**4) How can users get data removed, or how can users contact the bot owner?**
+   They can contact me, Kakarot#8194
       `)
             );
         return message.channel.send({
