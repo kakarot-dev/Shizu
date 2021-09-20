@@ -8,6 +8,8 @@ import {
   MessageComponentInteraction,
   ButtonInteraction,
 } from "discord.js";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const emojis = require('../../../../emojis.json')
 
 abstract class KickCommand extends Command {
   protected constructor() {
@@ -33,10 +35,10 @@ abstract class KickCommand extends Command {
         .setCustomId("yes_kick")
         .setLabel("Yep")
         .setStyle("SUCCESS")
-        .setEmoji("<:tick:868436462021013504>"),
+        .setEmoji(emojis.yea),
       new MessageButton()
         .setCustomId("no_kick")
-        .setEmoji("<:wrong:868437691765755964>")
+        .setEmoji(emojis.wrong)
         .setLabel("Nope")
         .setStyle("DANGER"),
     ]);
@@ -116,8 +118,8 @@ abstract class KickCommand extends Command {
           .setDescription(
             "Please select One of the following buttons with these emojis"
           )
-          .addField("The Yes Emoji", "<:tick:868436462021013504>")
-          .addField("The No Emoji", "<:wrong:868437691765755964>");
+          .addField("The Yes Emoji", emojis.yea)
+          .addField("The No Emoji", emojis.wrong);
         await mes.edit({
           components: [],
           embeds: [hell],

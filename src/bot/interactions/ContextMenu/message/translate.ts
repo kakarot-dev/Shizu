@@ -48,7 +48,7 @@ abstract class translateInteraction extends Menu {
                     description: `${translation.text}`,
                     color: 13464391,
                     footer: {
-                        text: "Translation by @iamtraction/google-translate"
+                        text: `Translation by @iamtraction/google-translate <> Id: ${message.id}`
                     }
                 }
             ]

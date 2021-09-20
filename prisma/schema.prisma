@@ -1,11 +1,68 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+model afk {
+  id        BigInt  @id(map: "primary") @default(autoincrement())
+  guildid   String?
+  userid    String?
+  afk       String?
+  timestamp BigInt?
+  username  String?
+}
+
+model guild {
+  id                 BigInt  @id(map: "primary") @default(autoincrement())
+  gitWebhookId       String?
+  gitWebhookToken    String?
+  twitchWebhookId    String?
+  twitchWebhookToken String?
+}
+
+model guildWatchList {
+  id        BigInt   @id(map: "primary") @default(autoincrement())
+  channelid String?
+  data      BigInt[]
+}
+
+model mutes {
+  id      BigInt    @id(map: "primary") @default(autoincrement())
+  userId  String?
+  reason  String?
+  guildId String?
+  expires DateTime? @db.Timestamp(6)
+}
+
+model repo {
+  id     BigInt   @id(map: "primary") @default(autoincrement())
+  url    String?
+  guilds String[]
+  banned Boolean?
+}
+
+model server {
+  id               BigInt   @id(map: "primary") @default(autoincrement())
+  statusChannelId  String?
+  modLogsChannelId String?
+  muteRoleId       String?
+  prefix           String?
+  suggestChannelId String?
+  ioc              Boolean?
+  waifu            String?
+  modRoles         String[]
+  autoMod          Json?
+}
+
+model webuser {
+  id      BigInt  @id(map: "primary") @default(autoincrement())
+  usertag String?
+  avatar  String?
+  banner  String?
+  nitro   String?
+  guilds  Json?
 }

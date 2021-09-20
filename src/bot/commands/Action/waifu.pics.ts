@@ -5,7 +5,7 @@ import axios from "axios";
 abstract class WaifuPicsCommand extends Command {
   protected constructor() {
     super({
-      name: "waifu.pics",
+      name: "waifu",
       aliases: [],
       description:
         "Waifu's : ) [NSFW should be reported immediately and the command should be be disabled]",

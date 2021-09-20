@@ -27,8 +27,6 @@ abstract class ReadyEvent extends Event {
     cli();
 
     await this.client.anischedule.init();
-    await this.client.waifu.init();
-    await this.client.waifu.storeEmbeds();
     InteractionRegistry(this.client);
     ButtonRegistry(this.client);
     MenuRegistry(this.client);

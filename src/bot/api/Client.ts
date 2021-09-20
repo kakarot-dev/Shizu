@@ -12,14 +12,16 @@ import {
   InteractionCommandOptions,
   MenuOptions
 } from "../types/Options";
+import { PrismaClient } from '@prisma/client';
 import { connect } from "mongoose";
 import Kitsu from "../struct/Kitsu/Kitsu";
 import Ft from "fortnite";
 import { Anischedule } from "../struct/AniSchedule";
-import { waifu } from "../struct/waifu";
+// import { waifu } from "../struct/waifu";
 import { Cache } from "../struct/Cache";
 import { guild } from "../mongoose/schemas/guild";
-// import * as premium from '../struct/PremiumSystem'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const emojis = require('../../../emojis.json')
 
 class Bot extends Client {
   public defaultprefix: string;
@@ -27,13 +29,15 @@ class Bot extends Client {
   public interactions = new Collection<string, InteractionCommandOptions>();
   public cooldowns = new Collection<string, Collection<string, number>>();
   public events = new Collection<string, EventOptions>();
+  static emoji = emojis
   public buttons = new Collection<string, ButtonOptions>();
   public menus = new Collection<string, MenuOptions>();
   public cache: Cache;
   public kitsu: any;
   public fortnite: any;
+  private prisma: PrismaClient = new PrismaClient();
   public anischedule: any;
-  public waifu: any;
+ // public waifu: any;
   user: ClientUser;
   public constructor() {
     super({
@@ -47,7 +51,7 @@ class Bot extends Client {
         Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS
       ],
       makeCache: Options.cacheWithLimits({
-        MessageManager: 200, // This is default.
+        MessageManager: 100, // This is default.
         UserManager: 10000,
         GuildMemberManager: 3000,
         PresenceManager: 0, // Add more class names here.
@@ -60,8 +64,13 @@ class Bot extends Client {
     this.kitsu = new Kitsu();
     this.fortnite = new Ft(process.env.FORTTOKEN ?? "test");
     this.cache = new Cache();
-    this.waifu = new waifu(this);
+    // this.waifu = new waifu(this);
     this.anischedule = new Anischedule(this);
+  }
+  public async prismaData() {
+    this.prisma.$connect()
+        .then(() => console.log("Cockroach db is connected"))
+        .catch(err => console.error(err))
   }
   public async start() {
     CommandRegistry(this);
@@ -87,7 +96,7 @@ class Bot extends Client {
     delay: number | undefined,
     ...param: undefined[]
   ) {
-    fn();
+     fn();
     return setInterval(fn, delay, ...param);
   }
   public async registerGuilds(): Promise<string> {

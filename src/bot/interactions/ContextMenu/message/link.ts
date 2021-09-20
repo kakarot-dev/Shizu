@@ -41,6 +41,7 @@ abstract class linksInteraction extends Menu {
                 ],
                 ephemeral: true
             })
+            return
         }
         const strictlinks = [...strictlinksSet]
         const links = [...linksSet]
@@ -48,6 +49,13 @@ abstract class linksInteraction extends Menu {
         await interaction.reply({
             embeds: [
                 {
+                    author: {
+                      name: message.author.tag,
+                      iconURL: message.author.displayAvatarURL({ dynamic: true })
+                    },
+                    thumbnail: {
+                        url: message.author.displayAvatarURL({ dynamic: true })
+                    },
                     fields: [
                         {
                             name: "Normal Links",
@@ -57,7 +65,10 @@ abstract class linksInteraction extends Menu {
                             name: "Strict Links",
                             value: (strictlinks.join(' **,** ') || "No Links")
                         }
-                    ]
+                    ],
+                    footer: {
+                        text: `Service may be incorrect, but that's how it is <> Id: ${message.id}`
+                    }
                 }
             ],
             ephemeral: true

@@ -44,7 +44,7 @@ abstract class iocCommand extends Command {
             enabled: true,
             color: "no",
           };
-          message.reply({
+         await message.reply({
             content: `Enabled the system of image to code`,
           });
         } else if (data && data.ioc?.enabled) {

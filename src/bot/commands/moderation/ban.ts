@@ -8,6 +8,8 @@ import {
   MessageComponentInteraction,
   ButtonInteraction,
 } from "discord.js";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const emojis = require('../../../../emojis.json')
 
 abstract class BanCommand extends Command {
   protected constructor() {
@@ -33,10 +35,10 @@ abstract class BanCommand extends Command {
         .setCustomId("yes_ban")
         .setLabel("Yep")
         .setStyle("SUCCESS")
-        .setEmoji("<:tick:868436462021013504>"),
+        .setEmoji(emojis.yea),
       new MessageButton()
         .setCustomId("no_ban")
-        .setEmoji("<:wrong:868437691765755964>")
+        .setEmoji(emojis.wrong)
         .setLabel("Nope")
         .setStyle("DANGER"),
     ]);

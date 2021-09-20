@@ -7,6 +7,7 @@ import "reflect-metadata"
 //=============================== Init ================================ //
 export const client: Client = new Client();
 client.start();
+client.prismaData();
 client.mongoData();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

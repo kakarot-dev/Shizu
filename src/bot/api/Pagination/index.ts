@@ -8,13 +8,13 @@ import {
   TextChannel,
 } from "discord.js";
 import { ButtonOption } from "./types/ButtonOption";
-
+import Bot from '../Client';
 //const availableEmojis = ["⏮️", "◀️", "⏹️", "▶️", "⏭️"];
 const availableEmojis = [
-  "<:left:865603838290690058>",
-  "<:pause:865604031849562132>",
-  "<:right:865603935234293770>",
-  "<:delete:865604123574927370>",
+  Bot.emoji.left,
+  Bot.emoji.pause,
+  Bot.emoji.delete,
+  Bot.emoji.right
 ];
 
 class Pagination {
