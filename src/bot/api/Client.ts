@@ -17,7 +17,7 @@ import { connect } from "mongoose";
 import Kitsu from "../struct/Kitsu/Kitsu";
 import Ft from "fortnite";
 import { Anischedule } from "../struct/AniSchedule";
-// import { waifu } from "../struct/waifu";
+import { waifu } from "../struct/waifu";
 import { Cache } from "../struct/Cache";
 import { guild } from "../mongoose/schemas/guild";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -35,9 +35,9 @@ class Bot extends Client {
   public cache: Cache;
   public kitsu: any;
   public fortnite: any;
-  private prisma: PrismaClient = new PrismaClient();
+  public prisma: PrismaClient = new PrismaClient();
   public anischedule: any;
- // public waifu: any;
+ public waifu: any;
   user: ClientUser;
   public constructor() {
     super({
@@ -64,7 +64,7 @@ class Bot extends Client {
     this.kitsu = new Kitsu();
     this.fortnite = new Ft(process.env.FORTTOKEN ?? "test");
     this.cache = new Cache();
-    // this.waifu = new waifu(this);
+    this.waifu = new waifu(this);
     this.anischedule = new Anischedule(this);
   }
   public async prismaData() {
