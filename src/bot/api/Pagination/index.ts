@@ -14,7 +14,11 @@ const availableEmojis = [
   Bot.emoji.left,
   Bot.emoji.pause,
   Bot.emoji.right,
+<<<<<<< HEAD
   Bot.emoji.left
+=======
+  Bot.emoji.delete
+>>>>>>> ce726b929904c7c45e67ba36b6ea8013c9eb7c4a
 ];
 
 class Pagination {
