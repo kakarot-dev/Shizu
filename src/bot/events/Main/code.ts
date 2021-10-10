@@ -3,7 +3,7 @@ import { Message, MessageAttachment, MessageEmbed } from "discord.js";
 import axios from "axios";
 
 abstract class MessageEvent extends Event {
-  constructor() {
+  protected constructor() {
     super({
       name: "messageCreate",
     });
@@ -11,13 +11,13 @@ abstract class MessageEvent extends Event {
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   public async exec(message: Message) {
-    if (!message.guild || !message.guild.me) return;
+    if (!message.guild || !message.guild.me || message.author.bot) return;
     if (
       message.content.startsWith("```") &&
       message.guild.me.permissions.has("ATTACH_FILES")
     ) {
       const data = this.client.cache.getIOC(message.guild.id);
-      if (!data || !data.enabled) return;
+      if (!data) return;
       const message1 = await message.reply({
         embeds: [new MessageEmbed().setDescription("Generating image.....")],
       });

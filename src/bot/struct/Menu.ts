@@ -5,6 +5,7 @@ import { MenuType } from "../types/Options";
 abstract class MenuCommand {
     public name: string;
     public type: number;
+    public path: string
     public abstract client: Bot;
 
     protected constructor(options: MenuType) {

@@ -243,11 +243,11 @@ export async function ban(member: GuildMember, webhook: Webhook, staffMember: Gu
     })
 }
 
-export async function unmute(member: GuildMember, webhook: Webhook, staffMember: string, reason: string): Promise<(Message | Object)> {
+export async function unmute(member: GuildMember, webhook: Webhook, reason: string): Promise<(Message | Object)> {
     const modad = new MessageEmbed()
         .setTitle(`📡 Mod Log!!!`)
         .setColor('RED')
-        .setDescription(`A member was unmuted who was muted by ${staffMember}\n**Reason**: ${reason} `)
+        .setDescription(`A member was unmuted.\n**Reason**: ${reason} `)
         .setThumbnail(member.user.displayAvatarURL({
             dynamic: true
         }))

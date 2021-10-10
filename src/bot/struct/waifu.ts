@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import Bot from "../api/Client";
 import cron from "node-cron";
-import { guild } from "../mongoose/schemas/guild";
 import {
   MessageEmbed,
   Permissions,
@@ -12,7 +11,6 @@ import axios from "axios";
 export class waifu {
   client: Bot;
   ImageEmbed: MessageEmbed;
-  InfoEmbed: MessageEmbed;
   constructor(client: Bot) {
     this.client = client;
   }
@@ -69,17 +67,19 @@ export class waifu {
     this.ImageEmbed = this.createImageEmbed(data);
   }
   async handle100(): Promise<void> {
-    const db = await guild.find({
-      waifu: {
-        $exists: true,
-      },
-    });
+    const db = await this.client.prisma.server.findMany({
+      select: {
+        id: true,
+        waifu: true
+      }
+    })
     if (db.length === 0) return console.log("[Shizu] No data found in the db!");
     console.group("Waifu Channel");
     for (const dbres of db) {
-      const guild = this.client.guilds.cache.get(`${dbres.guildId}`) ?? null;
+      if (!dbres.waifu) continue
+      const guild = await this.client.guilds.fetch(`${dbres.id}`) ?? null;
       if (!guild) continue;
-      const channel = guild.channels?.cache.get(
+      const channel = await guild.channels?.fetch(
         `${dbres.waifu}`
       ) as TextChannel;
       if (!channel) continue;

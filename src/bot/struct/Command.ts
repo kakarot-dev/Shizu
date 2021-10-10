@@ -14,6 +14,7 @@ abstract class Command {
   public ownerOnly: boolean;
   public guildOnly: boolean;
   public requiredArgs: number;
+  public path: string
   public userPermissions: PermissionString[];
   public clientPermissions: PermissionString[];
   public abstract client: Bot;

@@ -9,7 +9,7 @@ datasource db {
 
 model afk {
   id        BigInt  @id(map: "primary") @default(autoincrement())
-  guildid   String?
+  guildId   String?
   userid    String?
   afk       String?
   timestamp BigInt?
@@ -26,7 +26,7 @@ model guild {
 
 model guildWatchList {
   id        BigInt   @id(map: "primary") @default(autoincrement())
-  channelid String?
+  channelId String?
   data      BigInt[]
 }
 

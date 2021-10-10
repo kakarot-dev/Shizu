@@ -10,6 +10,7 @@ abstract class InteractionCommand {
   public name: string;
   public description: string;
   public cooldown: number;
+  public path: string;
   public options: ApplicationCommandOptionData[] | undefined;
   public abstract client: Bot;
 

@@ -14,7 +14,7 @@ const registerInteraction: Function = (client: Bot) => {
       const File = require(file).default;
       if (File && File.prototype instanceof Interaction) {
         const interaction: Interaction = new File();
-        interaction.client = client;
+        interaction.path = file
         client.interactions.set(interaction.name, interaction);
         // const data: ApplicationCommandData = {
         //   name: interaction.name,

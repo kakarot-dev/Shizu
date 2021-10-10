@@ -5,6 +5,7 @@ import Bot from "../api/Client";
 abstract class Event {
   public name: string;
   public type: boolean;
+  public path: string;
   public abstract client: Bot;
 
   constructor(options: EventOptions) {

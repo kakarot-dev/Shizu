@@ -5,8 +5,7 @@ import {
   MessageEmbed,
   MessageActionRow,
   MessageButton,
-  MessageComponentInteraction,
-  ButtonInteraction,
+  MessageComponentInteraction
 } from "discord.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const emojis = require('../../../../emojis.json')
@@ -87,7 +86,7 @@ abstract class KickCommand extends Command {
       components: [row],
     });
 
-    const filter = (interaction: ButtonInteraction) => {
+    const filter = (interaction: MessageComponentInteraction) => {
       if (
         (interaction.customId === "yes_kick" ||
           interaction.customId === "no_kick") &&

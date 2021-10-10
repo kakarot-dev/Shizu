@@ -36,7 +36,7 @@ abstract class linksInteraction extends Menu {
             await interaction.reply({
                 embeds: [
                     {
-                        description: "I coundn't find any links, sowwy!"
+                        description: "I coundn't find any links, sowwy!!"
                     }
                 ],
                 ephemeral: true

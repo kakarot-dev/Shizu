@@ -9,7 +9,7 @@ import {
 import Interaction from "../../struct/Interaction";
 
 abstract class FortniteInteraction extends Interaction {
-  constructor() {
+  protected constructor() {
     super({
       name: "fortnite",
       description: "Recieve Fortnite stats",

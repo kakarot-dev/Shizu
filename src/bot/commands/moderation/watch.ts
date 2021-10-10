@@ -4,11 +4,8 @@
 import Command from "../../struct/Command";
 import {
   Message,
-  MessageActionRow,
-  MessageButton,
   MessageEmbed,
 } from "discord.js";
-import { watchList } from "../../mongoose/schemas/GuildWatchList";
 import t from "../../struct/text";
 import { duration } from "moment";
 
@@ -23,7 +20,7 @@ abstract class WatchCommand extends Command {
       usage:
         "<prefix>watch <'Anilist/Mal link | releasing | not-yet-released'>",
       category: "mods",
-      cooldown: 10,
+      cooldown: 0,
       ownerOnly: false,
       guildOnly: true,
       requiredArgs: 0,
@@ -33,18 +30,15 @@ abstract class WatchCommand extends Command {
   }
 
   public async exec(message: Message, links: string[], prefix: string) {
-    const document = await watchList.findById(String(message.guild?.id));
-    const row = new MessageActionRow().addComponents([
-      new MessageButton()
-        .setLabel(`Report this here`)
-        .setStyle("LINK")
-        .setURL(`https://discord.gg/b7HzMtSYtX`),
-    ]);
-    if (document instanceof Error)
-      return message.channel.send({
-        content: `A error has occurred! Pls report this to the devs`,
-        components: [row],
-      });
+    const document = await this.client.prisma.guildWatchList.findFirst({
+      where: {
+        id: BigInt(message.guild?.id as string)
+      },
+      select: {
+        id: true,
+        data: true
+      }
+    })
     if (!document)
       return message.reply({
         content: `Please setup the system by using \`${prefix}anisched <channel>\``,
@@ -57,7 +51,7 @@ abstract class WatchCommand extends Command {
       .filter(Boolean);
     interface objop {
       page?: number;
-      id_not_in?: string | number | undefined;
+      id_not_in?: number[];
       status?: string | number | undefined;
       seasonYear?: string | number | Date;
       isAdult?: boolean;
@@ -71,9 +65,8 @@ abstract class WatchCommand extends Command {
     if (["releasing", "not-yet-released"].includes(links[0].toLowerCase())) {
       isStatusQuery = true;
       options.push({
-        page /*Always start on the first page*/: 1,
-        id_not_in /*Do not query the anime which is already on the list*/:
-          document.data,
+        page: 1,
+        id_not_in: document.data.map<number>((big: BigInt) => Number(big)),
         status /*Query anime with status RELEASING or NOT_YET_RELEASED*/:
           links[0].replace(/-/g, "_").toUpperCase(),
         seasonYear /*Do not query anime which was not released during this year*/:
@@ -86,7 +79,7 @@ abstract class WatchCommand extends Command {
       isStatusQuery = true;
       options.push({
         page: 1,
-        id_not_in: document.data,
+        id_not_in: document.data.map<number>((big: BigInt) => Number(big)),
         status: "RELEASING",
         isAdult: true,
       });
@@ -105,10 +98,7 @@ abstract class WatchCommand extends Command {
         content: `**${message.author.tag}**, Please provide a valid anime link [MyAnimeList or Anilist] or add \`releasing\` or \`not-yet-released\` as a parameter to add all releasing or not yet released anime to your subscriptions.`,
       });
     }
-    // This block will execute once if status is provided instead of a link, once if user provides MAL or Anilist,
-    // or twice if user provides both MAL and Anilist links.
     for (const option of options) {
-      // For every cycle, redeclare the variables to prevent usage from previous cycle.
       let hasNextPage;
       // Always execute once, before checking the hasNextPage variable.
       do {
@@ -119,10 +109,9 @@ abstract class WatchCommand extends Command {
         );
         // If any error occurs while fetching the API. Cancel all operation.
         if (errors) {
-          return message.reply({
-            content: `An error has occurred while fetching the info, Pls report this`,
-            components: [row],
-          });
+         throw {
+           message: "Error happening while fetching data from anilist. The operation logs will be logged through a different route."
+         }
         }
         // add the fetched entry from this current cycle to all of the fetched entries
         fetchedEntries = [...fetchedEntries, ...data.Page.media];
@@ -153,10 +142,10 @@ abstract class WatchCommand extends Command {
     }
 
     const idsToBeAdded = fetchedIDs.filter(
-      (id) => document.data.indexOf(id) < 0
+      (id) => document.data.indexOf(BigInt(id)) < 0
     );
     const idsAlreadyAdded = fetchedIDs.filter(
-      (id) => document.data.indexOf(id) >= 0
+      (id) => document.data.indexOf(BigInt(id)) >= 0
     );
 
     // Add all new IDs to the document
@@ -170,15 +159,15 @@ abstract class WatchCommand extends Command {
     ];
 
     // Save the document and catch the error, if there is any
-    const new_document = await document.save().catch((e) => e);
+    await this.client.prisma.guildWatchList.update({
+      where: {
+        id: BigInt(message.guild?.id as string)
+      },
+      data: {
+        data: document.data
+      }
+    })
 
-    // Display error, if there is any
-    if (new_document instanceof Error) {
-      return message.reply({
-        content: `An error has occurred while fetching the info, Pls report this`,
-        components: [row],
-      });
-    }
     const DICT = {
       TIPS: "Tips",
       WATCH: "watch",
@@ -196,7 +185,7 @@ abstract class WatchCommand extends Command {
       ).format(
         `d [${DICT["DAY(S)"]}] h [${DICT["HOUR(S)"]}] m [${DICT["MINUTE(S)"]}]`
       );
-      const EPISODENUM = ordinalize(
+      const EPISODENUM = this.ordinalize(
         fetchedEntries[0].nextAiringEpisode?.episode
       );
       const EMOJI = "<:tick:868436462021013504>";
@@ -278,19 +267,19 @@ abstract class WatchCommand extends Command {
       ],
     });
   }
+  ordinalize(n = 0) {
+    return (
+        Number(n) + ["st", "nd", "rd"][(n / 10) % 10 ^ 1 && n % 10] ||
+        Number(n) + "th"
+    );
+  }
+
 }
 export default WatchCommand;
 
-function ordinalize(n = 0) {
-  return (
-    Number(n) + ["st", "nd", "rd"][(n / 10) % 10 ^ 1 && n % 10] ||
-    Number(n) + "th"
-  );
-}
-
 function truncate(str: any = "", length = 100, end = "...") {
   return (
-    String(str).substring(0, length - end.length) +
-    (str.length > length ? end : "")
+      String(str).substring(0, length - end.length) +
+      (str.length > length ? end : "")
   );
 }

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import Command from "../../struct/Command";
 import { Message, MessageEmbed, ColorResolvable } from "discord.js";
-import { afk } from "../../mongoose/schemas/afk";
 
 abstract class AFKCommand extends Command {
   protected constructor() {
@@ -20,8 +19,6 @@ abstract class AFKCommand extends Command {
       clientPermissions: [],
     });
   }
-
-  // tslint:disable-next-line: promise-function-async
   public async exec(message: Message, args: string[]) {
     if (message.guild) {
       let afkMessage = args.join(" ");
@@ -33,18 +30,29 @@ abstract class AFKCommand extends Command {
       if (!afkMessage) {
         afkMessage = "AFK"; // Define AFK message
       }
-      // tslint:disable-next-line: await-promise
-      const data = await new afk({
-        guildId,
-        userId,
-        afk: afkMessage,
-        timestamp: new Date().getTime(),
-        username:
-          message.member?.nickname === null
-            ? message.author.username
-            : message.member?.nickname, // Keep Old Username
-      });
-      await data.save();
+     const data =  await this.client.prisma.afk.create({
+        data: {
+          id: BigInt(userId),
+          guildId: String(guildId),
+          afk: afkMessage,
+          timestamp: new Date().getTime(),
+          username: message.member?.nickname === null
+              ? message.author.username
+              : message.member?.nickname
+        }
+      }).catch(() => null);
+
+      if (!data) {
+        await message.channel.send({
+          embeds: [
+            {
+              description: "Error in saving data to the db.",
+              title: "Error",
+              color: "RED"
+            }
+          ]
+        })
+      }
 
       await message.member
         ?.setNickname(

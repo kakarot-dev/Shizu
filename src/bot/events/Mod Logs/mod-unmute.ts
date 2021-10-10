@@ -11,10 +11,10 @@ abstract class UnMuteModEvent extends Event {
     });
   }
 
-  public async exec(member: GuildMember, staffTag: string, reason: string) {
+  public async exec(member: GuildMember,  reason: string) {
       const hook = await log(member.guild, this.client);
       if (!hook) return;
-      await unmute(member, hook, staffTag, reason);
+      await unmute(member, hook, reason);
   }
 }
 

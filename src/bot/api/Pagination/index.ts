@@ -13,8 +13,8 @@ import Bot from '../Client';
 const availableEmojis = [
   Bot.emoji.left,
   Bot.emoji.pause,
-  Bot.emoji.delete,
-  Bot.emoji.right
+  Bot.emoji.right,
+  Bot.emoji.left
 ];
 
 class Pagination {

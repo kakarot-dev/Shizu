@@ -9,7 +9,8 @@ import {
   MessageEmbed,
   TextChannel,
 } from "discord.js";
-import { guild as schema } from "../../mongoose/schemas/guild";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const emojis = require('../../../../emojis.json')
 
 const status = {
   WAITING: {
@@ -27,7 +28,7 @@ const status = {
 };
 
 abstract class MessageEvent extends Event {
-  constructor() {
+  protected constructor() {
     super({
       name: "messageCreate",
     });
@@ -73,22 +74,21 @@ abstract class MessageEvent extends Event {
             })
             .setFooter(`Want to suggest something? Just type in this channel`);
           await channel.send({ embeds: [embed] }).then((message) => {
-            message.react("<:tick:868436462021013504>").then(() => {
-              message.react("<:wrong:868437691765755964>");
+            message.react(emojis.yea).then(() => {
+              message.react(emojis.wrong);
             });
           });
           await message.delete();
         } else if (!channel) {
-          schema.findOneAndUpdate(
-            {
-              guildId: message.guild.id,
+          delete this.client.cache.data.get(message.guild.id)?.suggestChannelId
+          await this.client.prisma.server.update({
+            where: {
+              id: BigInt(message.guild.id)
             },
-            {
-              $unset: {
-                suggestChannelId: "",
-              },
+            data: {
+              suggestChannelId: null
             }
-          );
+          })
         }
       }
     }

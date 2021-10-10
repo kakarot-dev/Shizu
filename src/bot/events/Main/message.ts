@@ -12,7 +12,7 @@ import {
 import settings from "../../settings";
 
 abstract class MessageEvent extends Event {
-  constructor() {
+  protected constructor() {
     super({
       name: "messageCreate",
     });
@@ -128,7 +128,7 @@ abstract class MessageEvent extends Event {
               }
             }
             if (missingPermissions.length) {
-              message.channel.send({
+             await message.channel.send({
                 embeds: [
                   embed.setDescription(
                     String(
@@ -192,9 +192,9 @@ abstract class MessageEvent extends Event {
           );
         }
         command.exec(message, args, prefix).catch((err) => {
-          embed.setDescription(err.message);
+          const id = this.client.rollbar.error(err)
+          embed.setDescription(err.message + "\n\n" + `Report the problem with the id: \`${id.uuid}\``);
           embed.setTitle("Error Message");
-          console.log(err);
           message.channel.send({
             embeds: [embed],
           });

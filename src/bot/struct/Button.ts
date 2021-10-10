@@ -5,6 +5,7 @@ import { ButtonType } from "../types/Options";
 abstract class ButtonCommand {
   public name: string;
   public once: boolean;
+  public path: string;
   public abstract client: Bot;
 
   protected constructor(options: ButtonType) {

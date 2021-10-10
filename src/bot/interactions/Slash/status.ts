@@ -13,7 +13,7 @@ import Interaction from "../../struct/Interaction";
 import { Statuspage } from "statuspage.js";
 
 abstract class DiscordStatusInteraction extends Interaction {
-  constructor() {
+  protected constructor() {
     super({
       name: "discord_status",
       description: "status of discord",
@@ -74,7 +74,7 @@ abstract class DiscordStatusInteraction extends Interaction {
               .join("\n") || "No data is available\nPlease Report this";
         // console.log(content)
         embed.setDescription(content);
-        interaction.reply({ embeds: [embed] });
+        await interaction.reply({embeds: [embed]});
         break;
       default:
         content =
@@ -88,7 +88,7 @@ abstract class DiscordStatusInteraction extends Interaction {
               )
               .join("\n") || "No component data available.";
         embed.setDescription(content);
-        interaction.reply({ embeds: [embed] });
+        await interaction.reply({embeds: [embed]});
     }
   }
 }

@@ -11,8 +11,10 @@ const registerButtons: Function = (client: Bot) => {
   interactionFiles.forEach(async (file) => {
     if (/\.js$/iu.test(file)) {
       const File = require(file).default;
+
       if (File && File.prototype instanceof Button) {
         const button: Button = new File();
+        button.path = file;
         button.client = client;
         client.buttons.set(button.name, button);
       }

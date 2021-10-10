@@ -6,6 +6,6 @@ interface animequote {
     quotecharacter: string;
     quoteanime: string;
 }
-export default async function getAnimeQuote(): Promise<animequote> {
+export default function getAnimeQuote(): animequote {
     return text[Math.floor(Math.random() * text.length)];
 }

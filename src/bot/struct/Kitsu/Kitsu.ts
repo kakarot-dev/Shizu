@@ -20,7 +20,7 @@ class Kitsu {
     };
   }
 
-  public async searchAnime(search: string, offset = 0): Promise<Anime> {
+  public async searchAnime(search: string, offset = 0): Promise<Anime[]> {
     return new Promise((resolve, reject) => {
       const searchTerm = encodeURIComponent(search);
       return axios
@@ -46,7 +46,7 @@ class Kitsu {
     );
   }
 
-  public async searchManga(search: string, offset = 0): Promise<Manga> {
+  public async searchManga(search: string, offset = 0): Promise<Manga[]> {
     return new Promise((resolve, reject) => {
       const searchTerm = encodeURIComponent(search);
       return axios

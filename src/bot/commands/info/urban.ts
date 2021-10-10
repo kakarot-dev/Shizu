@@ -41,7 +41,7 @@ abstract class UrbanCommand extends Command {
       .addField("Ratings", `${answer.thumbs_up} 👍 && ${answer.thumbs_down} 👍`)
       .setAuthor(answer.author ? answer.author : "None");
 
-    message.reply({ embeds: [embed] });
+    await message.reply({ embeds: [embed] });
   }
 }
 export default UrbanCommand;

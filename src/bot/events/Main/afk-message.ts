@@ -1,39 +1,38 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import Event from "../../struct/Event";
-import { afk as afkSchema } from "../../mongoose/schemas/afk";
 import { Message, MessageEmbed } from "discord.js";
 import moment from "moment";
 import { promisify } from 'util';
 const wait = promisify(setTimeout);
 
 abstract class MessageEvent extends Event {
-  constructor() {
+  protected constructor() {
     super({
       name: "messageCreate",
     });
   }
 
   public async exec(message: Message) {
-    if (!message.guild) return;
+    if (!message.guild || message.author.bot) return;
     const guildId = message.guild.id;
-    if (message.mentions.members?.first()) {
-      // If message mentions someone
-      // tslint:disable-next-line: await-promise
-      const results = await afkSchema.find({
-        guildId,
-      }); // Find results
+    const results = await this.client.prisma.afk.findMany({
+      where: {
+        guildId: guildId
+      }
+    }).catch(() => null)
 
+
+    if (message.mentions.members?.size) {
+      const mentionsArray = [...message.mentions.members.keys()]
+      const mentionsArray2 = mentionsArray.filter(id => id === message.author.id)
       if (results) {
-        // If results exist sort through each one
-        // tslint:disable-next-line: prefer-for-of
-        for (let i = 0; i < results.length; i++) {
-          const { userId, afk, timestamp } = results[i];
-          if (message.mentions.members.first()!.id === message.author.id)
-            return; // If the author is the one pinged themselve return
 
-          if (message.mentions.members.first()!.id === userId) {
-            const user = message.guild.members.cache.get(`${BigInt(userId)}`); // Send AFK message
+        for (let i = 0; i < results.length; i++) {
+          const { id, afk, timestamp } = results[i];
+
+          if (mentionsArray2.find(string => Number(string) === Number(id))) {
+            const user = message.guild.members.cache.get(`${id}`); // Send AFK message
 
             message.channel.send({
               embeds: [
@@ -44,7 +43,7 @@ abstract class MessageEvent extends Event {
                     user?.user.displayAvatarURL()
                   )
                   .setDescription(`${afk}`)
-                  .setFooter(`${moment(timestamp).fromNow()}`),
+                  .setFooter(`${moment(Number(timestamp as BigInt)).fromNow()}`),
               ],
             });
             return;
@@ -53,29 +52,21 @@ abstract class MessageEvent extends Event {
       }
     }
 
-    // tslint:disable-next-line: await-promise
-    const afkResults = await afkSchema.find({
-      guildId,
-    }); // Fetch results again
-    if (afkResults) {
-      // tslint:disable-next-line: prefer-for-of
-      for (let i = 0; i < afkResults.length; i++) {
+    if (results) {
+      for (let i = 0; i < results.length; i++) {
         // Loop through results
-        const { userId, timestamp, username } = afkResults[i];
+        const { id, timestamp, guildId, username } = results[i];
 
-        if (timestamp + 1000 * 10 <= new Date().getTime()) {
-          // If author sends a message from less than 10 seconds before they used the command, it ignores
+        if (Number(timestamp) + 1000 * 10 <= new Date().getTime()) {
+          if (message.author.id === `${id}`) {
+            await this.client.prisma.afk.deleteMany({
+              where: {
+                id: BigInt(id),
+                guildId: String(guildId)
+              }
+            }).catch(() => null)
 
-          if (message.author.id === userId) {
-            // tslint:disable-next-line: await-promise
-            await afkSchema.findOneAndDelete({
-              guildId,
-              userId,
-            }); // Delete from document
-
-            message.member?.setNickname(`${username}`).catch(async () => {
-              return;
-            }); // Set nickname back to old nickname
+            message.member?.setNickname(`${username}`).catch(() => null); // Set nickname back to old nickname
 
             const mm = await message.channel.send({
               embeds: [
@@ -86,7 +77,7 @@ abstract class MessageEvent extends Event {
                   ),
               ],
             });
-            wait(2000);
+            await wait(5000);
             await mm.delete().catch(() => null)
             return;
           }

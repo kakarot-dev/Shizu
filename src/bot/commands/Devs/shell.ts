@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Command from "../../struct/Command";
-import { Message, MessageEmbed } from "discord.js";
+import {Message, MessageActionRow, MessageButton, MessageEmbed} from "discord.js";
 import childProcess from "child_process";
 import { stripIndents } from "common-tags";
+import {Bin, BinFile, create} from "sourcebin-wrapper";
 
 abstract class ShellCommand extends Command {
   protected constructor() {
@@ -23,44 +24,70 @@ abstract class ShellCommand extends Command {
   }
 
   public async exec(message: Message, args: string[]) {
-    const embed = new MessageEmbed();
-    const text = args.join(" ");
-    childProcess.exec(text, {}, (error, stdout, stderr) => {
-      console.log(error, stdout, stderr);
-      if (error) {
-        embed.setColor("RED").setDescription(
-          stripIndents(`\`\`\`bash
-            ${error.message}\n${stdout}
-            \`\`\``)
-        );
-        message.channel.send({
-          embeds: [embed],
-        });
-        return;
-      } else {
-        embed
-          .setColor("GREEN")
-          .setDescription(
-            stripIndents(
-              `\`\`\`bash
-        ${stdout}
+      const embed = new MessageEmbed();
+      let output: string;
+      const text = args.join(" ");
+     const string = childProcess.exec(text, {}, async (error, stdout, stderr) => {
+        console.log(error, stdout, stderr);
+        if (error) {
+          output = stripIndents(`
+          Code: ${error.code}
+          Message: \n${error.message}
+          `)
+        } else output = stdout
+          if (output.length > 4000) {
+              const link = await create(
+                  [
+                      new BinFile({
+                          name: "Shelled Content",
+                          content: output,
+                          languageId: "js",
+                      }),
+                  ],
+                  {
+                      title: "Content",
+                      description: "This is awesome",
+                  }
+              ) as Bin
+              const buttons = new MessageActionRow().addComponents([
+                  new MessageButton()
+                      .setURL(`https://sourceb.in/${link.key}`)
+                      .setStyle('LINK')
+                      .setLabel('Link')
+              ])
+              return message.channel.send({
+                  embeds: [
+                      {
+                          description: "Output greater than 4000 chars",
+                          color: "GREEN"
+                      }
+                  ],
+                  components: [buttons]
+              })
+          }
+          embed
+              .setColor(error ? "RED" : "GREEN")
+              .setDescription(
+                  stripIndents(
+                      `\`\`\`bash
+        ${output}
         \`\`\``
-            )
-          )
-          .addField(
-            "stderror",
-            stripIndents(
-              `\`\`\`
+                  )
+              )
+              .addField(
+                  "stderror",
+                  stripIndents(
+                      `\`\`\`
           ${stderr ? stderr : "No errors"}
           \`\`\``
-            )
-          );
-        message.channel.send({
-          embeds: [embed],
+                  )
+              );
+          return message.channel.send({
+            embeds: [embed],
+          });
+
         });
-        return;
-      }
-    });
+        return string
   }
 }
 export default ShellCommand;

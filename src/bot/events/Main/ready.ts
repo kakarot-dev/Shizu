@@ -21,7 +21,7 @@ abstract class ReadyEvent extends Event {
 		`);
     await this.client.user.setActivity("Anime do be great");
     const cli = () => {
-      this.client.cache.check(this.client);
+      this.client.cache.check();
       setTimeout(cli, 1000 * 1);
     };
     cli();

@@ -22,14 +22,14 @@ abstract class SlapCommand extends Command {
         });
     }
     public async exec(message: Message, args: string[] /* prefix: string */) {
-        let target = message.mentions.members?.first() ?? args.join(' ');
+        let target = (message.mentions.members?.map<string>(member => `<@!${member.id}>`).join(', ').trim()) + '🎶'
         if (!args[0]) target = "**air...**";
         const {
             data: { url },
         } = await axios.get(`https://waifu.pics/api/sfw/slap`);
         const embed = new MessageEmbed()
             .setImage(`${url}`)
-            .setDescription(`Aww!! ${message.author} slapped ${target}`)
+            .setDescription(`Aww!! ${message.author} slaps ${target}`)
             .setColor(`#FFC0CB`);
         await message.reply({ embeds: [embed] });
     }

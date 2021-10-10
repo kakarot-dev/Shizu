@@ -10,7 +10,7 @@ import Interaction from "../../struct/Interaction";
 import axios from "axios";
 
 abstract class NpmInteraction extends Interaction {
-  constructor() {
+  protected constructor() {
     super({
       name: "npm",
       description: "Searches for packages",

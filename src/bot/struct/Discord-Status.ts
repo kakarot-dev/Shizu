@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import { guild as GuildModel } from "../mongoose/schemas/guild";
 import Bot from "../api/Client";
 import {
   StatuspageUpdates,
@@ -39,38 +38,39 @@ export default async function (client: Bot) {
   );
   s.on("incident_update", async (i) => {
     const update = i.incident_updates[0];
-    const results = await GuildModel.find();
+    const results = await client.prisma.server.findMany({
+      select: {
+        id: true,
+        statusChannelId: true
+      }
+    });
 
     for (const result of results) {
       if (!result.statusChannelId) continue;
-      const guild = client.guilds.cache.get(`${BigInt(result.guildId)}`);
+      const guild = await client.guilds.fetch(`${result.id}`);
       if (!guild) {
-        GuildModel.findOneAndUpdate(
-          {
-            guildId: result.guildId,
+        await client.prisma.server.update({
+          where: {
+            id: BigInt(result.id)
           },
-          {
-            $unset: {
-              statusChannelId: "",
-            },
+          data: {
+            statusChannelId: null
           }
-        );
+        })
         continue;
       }
-      const channel = guild.channels.cache.get(
+      const channel = await guild.channels.fetch(
         `${BigInt(result.statusChannelId)}`
       ) as TextChannel;
       if (!channel) {
-        await GuildModel.findOneAndUpdate(
-          {
-            guildId: result.guildId,
+        await client.prisma.server.update({
+          where: {
+            id: BigInt(result.id)
           },
-          {
-            $unset: {
-              statusChannelId: "",
-            },
+          data: {
+            statusChannelId: null
           }
-        );
+        });
       }
       const hook = await webhook(channel, guild, client);
       if (!hook) continue;
@@ -158,16 +158,14 @@ async function webhook(
   const arr: Webhook[] = [];
   let check = false;
   if (!channel.permissionsFor(guild?.me!).has("MANAGE_WEBHOOKS")) {
-    await GuildModel.findOneAndUpdate(
-      {
-        guildId: guild.id,
+    await client.prisma.server.update({
+      where: {
+        id: BigInt(guild.id)
       },
-      {
-        $unset: {
-          statusChannelId: "",
-        },
+      data: {
+        statusChannelId: null
       }
-    );
+    })
     const owner = await guild.fetchOwner();
     await owner
       .send(
@@ -193,16 +191,14 @@ async function webhook(
         })
         .catch(async () => {
           check = true;
-          await GuildModel.findOneAndUpdate(
-            {
-              guildId: guild.id,
+          await client.prisma.server.update({
+            where: {
+              id: BigInt(guild.id)
             },
-            {
-              $unset: {
-                statusChannelId: "",
-              },
+            data: {
+              statusChannelId: null
             }
-          );
+          })
           const owner = await guild.fetchOwner();
           await owner
             .send(

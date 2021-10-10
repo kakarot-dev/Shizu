@@ -119,7 +119,7 @@ abstract class nextEpCommand extends Command {
         : "unknown";
       const parameters = {
         time: timeUntilAiring,
-        episode: media[0].nextAiringEpisode.episode,
+        episode: media[0].nextAiringEpisode?.episode,
         fromnow: fromNow,
         finale: seasonFinale,
         date: date,

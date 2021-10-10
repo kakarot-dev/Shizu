@@ -22,7 +22,7 @@ abstract class BiteCommand extends Command {
     });
   }
   public async exec(message: Message, args: string[] /* prefix: string */) {
-    let target = message.mentions.members?.first() ?? args.join(' ');
+    let target = (message.mentions.members?.map<string>(member => `<@!${member.id}>`).join(', ').trim()) + '🎶'
     if (!args[0]) target = "**air...**";
     const {
       data: { url },

@@ -15,6 +15,7 @@ const registerMenu: Function = (client: Bot) => {
             if (File && File.prototype instanceof Menu) {
                 const menu: Menu = new File();
                 menu.client = client;
+                menu.path = file
                 client.menus.set(menu.name, menu);
                 // const data: ApplicationCommandData = {
                 //   name: menu.name,

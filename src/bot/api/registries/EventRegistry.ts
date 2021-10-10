@@ -16,9 +16,13 @@ const registerEvents: Function = (client: Bot) => {
         // tslint:disable-next-line: new-parens
         const event: Event = new File();
         event.client = client;
+        event.path = file
         client.events.set(event.name, event);
         client[event.type ? "once" : "on"](event.name, (...args: any[]) =>
-          event.exec(...args).catch((err) => console.log(err))
+          event.exec(...args).catch((err) => {
+            const id = client.rollbar.error(err)
+            console.log(`New Error found in ${event.name} and has been registered with the id: ${id.uuid}`)
+          })
         );
       }
     }

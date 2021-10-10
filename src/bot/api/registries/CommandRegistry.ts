@@ -12,9 +12,9 @@ const registerCommands: Function = (client: Bot) => {
     if (/\.js$/iu.test(file)) {
       const File = require(file).default;
       if (File && File.prototype instanceof Command) {
-        // tslint:disable-next-line: new-parens
         const command: Command = new File();
         command.client = client;
+        command.path = file
         client.commands.set(command.name, command);
         command.aliases.forEach((alias) => client.commands.set(alias, command));
       }

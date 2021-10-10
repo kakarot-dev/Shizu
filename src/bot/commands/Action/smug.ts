@@ -22,14 +22,14 @@ abstract class SmugCommand extends Command {
     });
   }
   public async exec(message: Message, args: string[]) {
-    let target = message.mentions.members?.first() || args[0];
-    if (!args[0]) target = "at **air...**";
+    let target = (message.mentions.members?.map<string>(member => `<@!${member.id}>`).join(', ').trim()) + '🎶'
+    if (!args[0]) target = "**air...**";
     const {
       data: { url },
     } = await axios.get(`https://waifu.pics/api/sfw/smug`);
     const embed = new MessageEmbed()
       .setImage(`${url}`)
-      .setDescription(`Aww!! ${message.author} sumgged ${target}`)
+      .setDescription(`Aww!! ${message.author} smugs ${target}`)
       .setColor(`#FFC0CB`);
     await message.reply({ embeds: [embed] });
   }

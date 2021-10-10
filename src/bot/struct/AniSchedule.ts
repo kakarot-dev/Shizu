@@ -5,7 +5,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Bot from "../api/Client";
 import { MessageEmbed, Permissions, TextChannel } from "discord.js";
-import { watchList } from "../mongoose/schemas/GuildWatchList";
 import t from "./text";
 import * as moment from "moment";
 import axios from "axios";
@@ -123,7 +122,8 @@ export class Anischedule {
    * @param {object} variables The variables to fetch with
    * @returns {Promise<data>}
    */
-  async fetch(query: any, variables: any): Promise<unknown> {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  async fetch(query: string, variables: Object): Promise<any> {
     const result = await axios({
       url: "https://graphql.anilist.co",
       method: "POST",
@@ -142,14 +142,15 @@ export class Anischedule {
    */
   getAllWatched(): Promise<Array<any>> {
     return new Promise(async (resolve) => {
-      const list = await watchList
-        .find({ _id: { $in: [...this.client.guilds.cache.keys()] } })
+      const raw = await this.client.prisma.guildWatchList
+        .findMany({  })
         .catch((err) => err);
+      const list = raw.filter(data => [...this.client.guilds.cache.keys()].includes(`${data.id}`))
       if (list instanceof Error)
         return console.log(
           `\x1b[35m[SHARD_${this.client.shard?.ids[0]}] \x1b[31m[Shizu]\x1b[0m: ${list.message}`
         );
-      return resolve([...new Set(list.flatMap((guild) => guild.data))]);
+      return resolve([...new Set(list.flatMap((guild) => guild.data.map(id => Number(id))))]);
     });
   }
   /**
@@ -328,12 +329,12 @@ export class Anischedule {
       (e) => e !== entry.id
     );
     const embed = this.getAnnouncementEmbed(entry, date);
-    const list = await watchList.find({}).catch(() => []);
+    const list = await this.client.prisma.guildWatchList.findMany({}).catch(() => []);
     for (const guild of list.filter((x) => x.data.includes(entry.media.id))) {
       const channel = this.client.channels.cache.get(
-        guild.channelId
+        guild.channelId as string
       ) as TextChannel;
-      const isValCh = channel instanceof TextChannel;
+      const isValCh = true;
       const reqperm = [
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.EMBED_LINKS,

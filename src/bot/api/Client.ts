@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { Client, Collection, Intents, ClientUser, Options } from "discord.js";
+import {Client, Collection, Intents, ClientUser, Options, Guild} from "discord.js";
 import {
   CommandRegistry,
   EventRegistry,
@@ -13,18 +13,18 @@ import {
   MenuOptions
 } from "../types/Options";
 import { PrismaClient } from '@prisma/client';
-import { connect } from "mongoose";
 import Kitsu from "../struct/Kitsu/Kitsu";
 import Ft from "fortnite";
 import { Anischedule } from "../struct/AniSchedule";
 import { waifu } from "../struct/waifu";
 import { Cache } from "../struct/Cache";
-import { guild } from "../mongoose/schemas/guild";
+import Rollbar from 'rollbar';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const emojis = require('../../../emojis.json')
 
 class Bot extends Client {
   public defaultprefix: string;
+  public prisma: PrismaClient = new PrismaClient();
   public commands = new Collection<string, CommandOptions>();
   public interactions = new Collection<string, InteractionCommandOptions>();
   public cooldowns = new Collection<string, Collection<string, number>>();
@@ -32,12 +32,12 @@ class Bot extends Client {
   static emoji = emojis
   public buttons = new Collection<string, ButtonOptions>();
   public menus = new Collection<string, MenuOptions>();
-  public cache: Cache;
-  public kitsu: any;
-  public fortnite: any;
-  public prisma: PrismaClient = new PrismaClient();
-  public anischedule: any;
- public waifu: any;
+  public cache = new Cache(this);
+  public kitsu = new Kitsu();
+  public fortnite = new Ft(process.env.FORTTOKEN ?? "test");
+  public anischedule = new Anischedule(this);
+  public waifu = new waifu(this);
+  public rollbar: Rollbar
   user: ClientUser;
   public constructor() {
     super({
@@ -61,11 +61,6 @@ class Bot extends Client {
     });
 
     this.defaultprefix = process.env.PREFIX ?? "sh.";
-    this.kitsu = new Kitsu();
-    this.fortnite = new Ft(process.env.FORTTOKEN ?? "test");
-    this.cache = new Cache();
-    this.waifu = new waifu(this);
-    this.anischedule = new Anischedule(this);
   }
   public async prismaData() {
     this.prisma.$connect()
@@ -73,23 +68,10 @@ class Bot extends Client {
         .catch(err => console.error(err))
   }
   public async start() {
+    await this.prismaData()
     CommandRegistry(this);
     EventRegistry(this);
     await super.login(process.env.TOKEN);
-  }
-  public mongoData() {
-    connect(
-      process.env.MONGO_URI ?? "null",
-      {
-        useFindAndModify: false,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      },
-      (err) => {
-        if (err) throw err;
-        else console.log("DataBase Connected");
-      }
-    );
   }
   public loop(
     fn: { (): Promise<void>; (): void; (...args: any[]): void },
@@ -100,20 +82,14 @@ class Bot extends Client {
     return setInterval(fn, delay, ...param);
   }
   public async registerGuilds(): Promise<string> {
-    this.guilds.cache.forEach(async (server) => {
-      await guild.findOneAndUpdate(
-          {
-            guildId: server.id,
-          },
-          {
-            guildId: server.id,
-          },
-          {
-            upsert: true,
+      this.guilds.cache.forEach(async (server: Guild) => {
+        await this.prisma.guild.create({
+          data: {
+            id: BigInt(server.id)
           }
-      );
-    });
-    return `I have saved a total of ${this.guilds.cache.size} guilds in the db`;
+        }).catch(() => null)
+      })
+      return `I have saved a total of ${this.guilds.cache.size} guilds in the db`;
   }
 }
 

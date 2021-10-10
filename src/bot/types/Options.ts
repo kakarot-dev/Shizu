@@ -21,6 +21,7 @@ export interface CommandOptions {
   requiredArgs?: number;
   userPermissions?: PermissionString[];
   clientPermissions?: PermissionString[];
+  path?: string;
   exec: (msg: Message, args: string[], prefix: string) => any | Promise<any>;
 }
 
@@ -28,6 +29,7 @@ export interface InteractionCommandOptions {
   name: string;
   description?: string;
   cooldown?: number;
+  path?: string;
   options?: ApplicationCommandOptionData[] | undefined;
   exec: (
     interactions: Interaction,
@@ -42,18 +44,21 @@ export type MenuType = Omit<MenuOptions, "exec">
 
 export interface EventOptions {
   name: string;
+  path?: string;
   once?: boolean;
 }
 
 export interface ButtonOptions {
   name: string;
   once?: boolean;
+  path?: string;
   exec: (interaction: ButtonInteraction) => Promise<void>;
 }
 
 export interface MenuOptions {
   name: string;
   type: number;
+  path?: string;
   exec: (interaction: ContextMenuInteraction) => Promise<void>
 }
 

@@ -10,8 +10,7 @@ import {
   MessageButton,
   MessageComponentInteraction,
   GuildChannel,
-  Snowflake,
-  ButtonInteraction,
+  Snowflake
 } from "discord.js";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const emojis = require('../../../../emojis.json')
@@ -33,10 +32,8 @@ abstract class ChannelCommand extends Command {
       clientPermissions: ["MANAGE_CHANNELS"],
     });
   }
-
-  // tslint:disable-next-line: promise-function-async
   public async exec(message: Message, args: string[], prefix: string) {
-    const filter = (interaction: ButtonInteraction) => {
+    const filter = (interaction: MessageComponentInteraction) => {
       if (
         (interaction.customId === "yesc" || interaction.customId === "noc") &&
         interaction.user.id !== message.author.id

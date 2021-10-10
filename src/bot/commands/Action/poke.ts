@@ -23,13 +23,13 @@ abstract class PokeCommand extends Command {
   }
   public async exec(message: Message, args: string[]) {
     let target = message.mentions.members?.first() || args[0];
-    if (!args[0]) target = "at **air...**";
+    if (!args[0]) target = "**air...**";
     const {
       data: { url },
     } = await axios.get(`https://waifu.pics/api/sfw/poke`);
     const embed = new MessageEmbed()
       .setImage(`${url}`)
-      .setDescription(`Aww!! ${message.author} is poking at ${target}`)
+      .setDescription(`Aww!! ${message.author} pokes ${target}`)
       .setColor(`#FFC0CB`);
     await message.reply({ embeds: [embed] });
   }

@@ -29,8 +29,9 @@ abstract class PingCommand extends Command {
       "https://cdn.discordapp.com/attachments/823797050801913890/829363098086408305/pong_5.gif",
     ];
     const response = liinks[Math.floor(Math.random() * liinks.length)];
+
     return msg.edit({
-      content: `Pong!!! Latency: \`${latenc}ms\` WS: \`${this.client.ws.ping}ms\``,
+      content: `Pong!! *uwu* latency: \`${latenc}ms\` wS: \`${this.client.ws.ping}ms\``,
       embeds: [new MessageEmbed().setImage(response).setColor("YELLOW")],
     });
   }

@@ -1,7 +1,6 @@
 import Bot from "../api/Client";
 import { Guild, GuildMember, TextChannel, User, Webhook } from "discord.js";
-import { guild as schema } from "../mongoose/schemas/guild";
-
+// TODO: CHECK THE PRISMA QUERIES
 async function log(guild: Guild, client: Bot): Promise<void | Webhook> {
   const data = client.cache.getModChannel(guild.id);
   if (!data) return;
@@ -11,19 +10,17 @@ async function log(guild: Guild, client: Bot): Promise<void | Webhook> {
     !channel ||
     !channel.permissionsFor(guild?.me as GuildMember).has("MANAGE_WEBHOOKS")
   ) {
-    await schema.findOneAndUpdate(
-      {
-        guildId: guild.id,
+    await client.prisma.server.update({
+      where: {
+        id: BigInt(guild.id)
       },
-      {
-        $unset: {
-          modLogsChannelId: "",
-        },
+      data: {
+        modLogsChannelId: null
       }
-    );
+    })
     const owner = await guild.fetchOwner();
     const data = client.cache.getData(guild.id);
-    if (data) data.modlogChannelId = null;
+    if (data) delete data.modLogsChannelId
     await owner.user
       .send({
         content: `I wasnt able to get a webhook from the channel with the id ${data} for the mod Logs\nI have **reset** the Mod Logs\nI dont have Perms for manage webhooks, pls make sure I have that permission`,
@@ -46,16 +43,14 @@ async function log(guild: Guild, client: Bot): Promise<void | Webhook> {
         })
         .catch(() => null);
       if (!web) {
-        await schema.findOneAndUpdate(
-          {
-            guildId: guild.id,
+        await client.prisma.server.update({
+          where: {
+            id: BigInt(guild.id)
           },
-          {
-            $unset: {
-              modLogsChannelId: "",
-            },
-          }
-        );
+        data: {
+            modLogsChannelId: null
+        }
+        });
         const owner = await guild.fetchOwner();
         await owner.user
           .send({

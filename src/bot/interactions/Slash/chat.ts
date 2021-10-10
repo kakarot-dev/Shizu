@@ -9,7 +9,7 @@ import Interaction from "../../struct/Interaction";
 import axios from "axios";
 
 abstract class ChatInteraction extends Interaction {
-  constructor() {
+  protected constructor() {
     super({
       name: "chat",
       description: "Chat with the bot",

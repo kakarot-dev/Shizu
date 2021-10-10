@@ -12,7 +12,7 @@ import {
 import Interaction from "../../struct/Interaction";
 
 abstract class AvatarInteraction extends Interaction {
-  constructor() {
+  protected constructor() {
     super({
       name: "avatar",
       description: "Avatar of a user in a server",
@@ -37,6 +37,7 @@ abstract class AvatarInteraction extends Interaction {
     const member = args.getMember("target") as GuildMember;
 
     const embed = new MessageEmbed()
+      .setTitle(`Avatar of ${member.user.tag}.`)
       .setColor(member?.displayHexColor as ColorResolvable)
       .setImage(
         member.user?.displayAvatarURL({

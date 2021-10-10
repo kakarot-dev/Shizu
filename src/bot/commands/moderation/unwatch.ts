@@ -4,11 +4,8 @@
 import Command from "../../struct/Command";
 import {
   Message,
-  MessageActionRow,
-  MessageButton,
   MessageEmbed,
 } from "discord.js";
-import { watchList } from "../../mongoose/schemas/GuildWatchList";
 import t from "../../struct/text";
 
 const watch = t(`${process.cwd()}/assets/Watch.graphql`, require);
@@ -32,31 +29,29 @@ abstract class UnWatchCommand extends Command {
   }
 
   public async exec(message: Message, links: string[], prefix: string) {
-    let document = await watchList.findById(String(message.guild?.id));
-    const row = new MessageActionRow().addComponents([
-      new MessageButton()
-        .setLabel(`Report this here`)
-        .setStyle("LINK")
-        .setURL(`https://discord.gg/b7HzMtSYtX`),
-    ]);
-    if (document instanceof Error)
-      return message.channel.send({
-        content: `A error has occurred! Pls report this to the devs`,
-        components: [row],
-      });
+    let document = await this.client.prisma.guildWatchList.findFirst({
+      where: {
+        id: BigInt(message.guild?.id as string)
+      },
+      select: {
+        id: true,
+        data: true
+      }
+    })
     if (!document)
       return message.reply({
         content: `Please setup the system by using \`${prefix}anisched <channel>\``,
       });
     if (links[0].toLowerCase() === "all") {
       document.data = [];
-      document = await document.save().catch((e) => e);
-      if (document instanceof Error) {
-        return message.channel.send({
-          content: `A error has occurred! Pls report this to the devs`,
-          components: [row],
-        });
-      }
+      document = await this.client.prisma.guildWatchList.update({
+        where: {
+          id: BigInt(message.guild?.id as string)
+        },
+        data: {
+          data: []
+        }
+      })
       return message.reply({
         content: "Successfully removed all subscriptions!",
       });
@@ -101,8 +96,6 @@ abstract class UnWatchCommand extends Command {
           option
         );
         if (errors) {
-          // parameters.assign({ '%QUERY%': 'Watch', '%SERVICE%': 'AniList', '%ERROR%': res.errors[0].message });
-          // return message.reply(language.get({ '$in': 'ERRORS', id: res.errors[0].status, parameters }));
           return message.reply({
             content: `**${message.author.tag}**, The service Anilist gave the error as ${errors[0].status} with the message ${errors[0].message}`,
           });
@@ -113,7 +106,7 @@ abstract class UnWatchCommand extends Command {
             ...fetchedIDs,
             ...data.Page.media.map((media) => media.id),
           ]),
-        ];
+        ].map<BigInt>(num => BigInt(num));
         hasNextPage = data.Page.pageInfo.hasNextPage;
         option.page = data.Page.pageInfo.currentPage + 1;
       } while (hasNextPage);
@@ -128,10 +121,16 @@ abstract class UnWatchCommand extends Command {
             : `**${message.author.tag}**, None of the provided links/ids matches anime from AniList!`,
       });
     }
-    const tbd = fetchedIDs.filter((x) => document.data.includes(x));
-    //const exc = fetchedIDs.filter(x => !document.data.includes(x));
+    const tbd = fetchedIDs.filter((x) => document?.data.includes(x)).map<BigInt>(num => BigInt(num));
     document.data = document.data.filter((d) => !tbd.some((t) => t === d));
-    document = await document.save().catch((e) => e);
+    document = await this.client.prisma.guildWatchList.update({
+      where: {
+        id: BigInt(message.guild?.id as string)
+      },
+      data: {
+        data: document.data
+      }
+    })
     const DICT = {
       TIPS: "Tips",
       UNWATCH: "unwatch",
@@ -163,7 +162,7 @@ abstract class UnWatchCommand extends Command {
 
     const entries = fetchedIDs.slice(0, 20).map((id) => {
       const entry = fetchedEntries.find((x) => x.id === id);
-      const title = truncate(
+      const title = this.truncate(
         Object.values(entry.title).filter(Boolean)[0],
         40,
         "..."
@@ -191,16 +190,12 @@ abstract class UnWatchCommand extends Command {
       ],
     });
   }
+  truncate(str: any = "", length = 100, end = "...") {
+    return (
+        String(str).substring(0, length - end.length) +
+        (str.length > length ? end : "")
+    );
+  }
 }
 export default UnWatchCommand;
 
-// function ordinalize(n = 0) {
-//     return Number(n) + ['st', 'nd', 'rd'][n / 10 % 10 ^ 1 && n % 10] || Number(n) + 'th';
-// }
-
-function truncate(str: any = "", length = 100, end = "...") {
-  return (
-    String(str).substring(0, length - end.length) +
-    (str.length > length ? end : "")
-  );
-}

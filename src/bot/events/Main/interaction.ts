@@ -4,7 +4,7 @@ import { Interaction, Collection, MessageEmbed } from "discord.js";
 import Event from "../../struct/Event";
 
 abstract class InteractionEvent extends Event {
-  constructor() {
+  protected constructor() {
     super({
       name: "interactionCreate",
     });
@@ -26,12 +26,12 @@ abstract class InteractionEvent extends Event {
             const expirationTime = cooldown + cooldownAmount;
             if (now < expirationTime) {
               const timeLeft = (expirationTime - now) / 1000;
-              interaction.reply(
-                `Wait ${timeLeft.toFixed(
-                  1
-                )} more second(s) before reusing the \`${
-                  command.name
-                }\` command.`
+              await interaction.reply(
+                  `Wait ${timeLeft.toFixed(
+                      1
+                  )} more second(s) before reusing the \`${
+                      command.name
+                  }\` command.`
               );
               return;
             }
@@ -43,35 +43,17 @@ abstract class InteractionEvent extends Event {
           cooldownAmount
         );
       }
-      if (command?.exec.constructor.name === "AsyncFunction") {
-        command.exec(interaction, interaction.options).catch((err) => {
+        command?.exec(interaction, interaction.options).catch(async (err) => {
+          const id = this.client.rollbar.error(err)
           const errEmbed = new MessageEmbed()
             .setColor("RED")
-            .setDescription(err.message)
-            .setTitle("Error Message");
-          console.log(err);
-          interaction.reply({
+          errEmbed.setDescription(err.message + "\n\n" + `Report the problem with the id: \`${id.uuid}\``);
+          errEmbed.setTitle("Error Message");
+          await interaction.reply({
             embeds: [errEmbed],
-            ephemeral: true,
           });
         });
         return;
-      } else {
-        try {
-          command?.exec(interaction, interaction.options);
-          return;
-        } catch (err: any) {
-          const errEmbed = new MessageEmbed()
-            .setColor("RED")
-            .setDescription(err.message)
-            .setTitle("Error Message");
-          console.log(err);
-          interaction.reply({
-            embeds: [errEmbed],
-            ephemeral: true,
-          });
-        }
-      }
     } else if (interaction.isButton()) {
       const button = this.client.buttons.get(interaction.customId);
       if (!button) {
@@ -81,19 +63,31 @@ abstract class InteractionEvent extends Event {
         // })
         return;
       }
-      button.exec(interaction).catch((err) => {
-        console.log(err);
-        return interaction.reply(`${err.message}`);
+      button.exec(interaction).catch(async (err) => {
+        const id = this.client.rollbar.error(err)
+        const errEmbed = new MessageEmbed()
+            .setColor("RED")
+        errEmbed.setDescription(err.message + "\n\n" + `Report the problem with the id: \`${id.uuid}\``);
+        errEmbed.setTitle("Error Message");
+        await interaction.reply({
+          embeds: [errEmbed],
+        });
       });
     } else if (interaction.isContextMenu()) {
       const menu = this.client.menus.get(interaction.commandName);
       if (!menu) {
         return
       }
-      menu.exec(interaction).catch(err => {
-        console.log(err);
-        return interaction.reply(`${err.message}`);
-      })
+      menu.exec(interaction).catch(async (err) => {
+        const id = this.client.rollbar.error(err)
+        const errEmbed = new MessageEmbed()
+            .setColor("RED")
+        errEmbed.setDescription(err.message + "\n\n" + `Report the problem with the id: \`${id.uuid}\``);
+        errEmbed.setTitle("Error Message");
+        await interaction.reply({
+          embeds: [errEmbed],
+        });
+      });
     }
     return;
   }

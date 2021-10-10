@@ -22,14 +22,14 @@ abstract class PatCommand extends Command {
     });
   }
   public async exec(message: Message, args: string[]) {
-    let target = message.mentions.members?.first() || args[0];
+    let target = (message.mentions.members?.map<string>(member => `<@!${member.id}>`).join(', ').trim()) + '🎶'
     if (!args[0]) target = "**air...**";
     const {
       data: { url },
     } = await axios.get(`https://waifu.pics/api/sfw/pat`);
     const embed = new MessageEmbed()
       .setImage(`${url}`)
-      .setDescription(`Aww!! ${message.author} patted ${target}`)
+      .setDescription(`Aww!! ${message.author} pats ${target}`)
       .setColor(`#FFC0CB`);
     await message.reply({ embeds: [embed] });
   }

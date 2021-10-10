@@ -9,7 +9,7 @@ import axios from "axios";
 import { utc } from "moment";
 
 abstract class GithubInteraction extends Interaction {
-  constructor() {
+  protected constructor() {
     super({
       name: "github",
       description: "Search github for repo/users",

@@ -1,24 +1,26 @@
 import Event from "../../struct/Event";
 import { Guild } from "discord.js";
-import { guild } from "../../mongoose/schemas/guild";
+
 abstract class GuildMemberAddEvent extends Event {
-  constructor() {
+  protected constructor() {
     super({
       name: "guildCreate",
     });
   }
 
   public async exec(server: Guild): Promise<void> {
-    await guild.findOneAndUpdate(
-      {
-        guildId: server.id,
-      },
-      {
-        guildId: server.id,
-      },
-      {
-        upsert: true,
-      }
+    await this.client.prisma.server.upsert(
+        {
+          where: {
+            id: BigInt(server.id)
+          },
+          create: {
+            id: BigInt(server.id)
+          },
+          update: {
+            id: BigInt(server.id)
+          }
+        }
     );
     console.log(`I have Joined a Guild and created its data in database`);
   }
