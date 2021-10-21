@@ -35,14 +35,14 @@ abstract class MessageEvent extends Event {
         },
       }).catch(() => null);
 
-      if (!buffer) {
+      if (!buffer || !buffer.data) {
         await message1.edit({
           content: `A error occurred! The website reported a malformed request`,
           embeds: [],
         });
         return;
       }
-      const image = new MessageAttachment(buffer.data, "image.png");
+      const image = new MessageAttachment(buffer.data, "code.png");
       await message1.edit({ files: [image], embeds: [] });
     } else return;
   }

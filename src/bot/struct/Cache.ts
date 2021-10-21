@@ -41,6 +41,7 @@ export class Cache {
       return
     }
    for (const guild of data) {
+     if (!guild.prefix) guild.prefix = process.env.PREFIX as string
      this.data.set(`${guild.id}`, guild)
    }
   }
@@ -89,7 +90,7 @@ export class Cache {
     if (results && results.length) {
       const filtered = results.filter(data => {
         const date = new Date(data.expires as Date)
-        return date > now
+        return date < now
       })
       if (filtered.length) {
         for (const result of filtered) {
@@ -112,9 +113,7 @@ export class Cache {
           }
           const mrole = await this.muterole(guild!);
           if (!mrole) return;
-          await member.roles.remove(mrole).catch(() => {
-            return;
-          });
+          await member.roles.remove(mrole)
           const dm = new MessageEmbed()
               .setTitle(`You are unmuted in ${guild?.name}`)
               .setColor("GREEN")

@@ -87,38 +87,37 @@ abstract class MessageEvent extends Event {
           });
           return;
         }
-        if (message.channel instanceof TextChannel) {
+        if (message.channel instanceof TextChannel && message.member) {
           const userPermissions = command.userPermissions;
           const clientPermissions = command.clientPermissions;
-          // tslint:disable-next-line: new-parens
-          const missingPermissions: any[] = [];
-          if (userPermissions?.length) {
-            // tslint:disable-next-line: prefer-for-of
-            for (let i = 0; i < userPermissions.length; i++) {
-              const hasPermission = message.member?.permissions.has(
-                userPermissions[i]
-              );
-              if (!hasPermission) {
-                missingPermissions.push(userPermissions[i]);
-              }
-            }
-            if (missingPermissions.length) {
-              message.channel.send({
-                embeds: [
-                  embed.setDescription(
-                    String(
-                      `Your missing these required permissions: ${missingPermissions.join(
-                        ", "
-                      )}`
-                    )
-                  ),
-                ],
-              });
-              return;
-            }
+          const missingPermissions: string[] = [];
+              const userRoles =  [...message.member.roles.cache.keys()];
+              const has_role: boolean | undefined = data?.modRoles?.some(id => userRoles.includes(id));
+              if (!has_role && userPermissions?.length) {
+                for (let i = 0; i < userPermissions.length; i++) {
+                  const hasPermission = message.member?.permissions.has(
+                      userPermissions[i]
+                  );
+                  if (!hasPermission) {
+                    missingPermissions.push(userPermissions[i]);
+                  }
+                }
+                if (missingPermissions.length) {
+                  await message.channel.send({
+                    embeds: [
+                      embed.setDescription(
+                          String(
+                              `Your missing these required permissions: ${missingPermissions.join(
+                                  ", "
+                              )}`
+                          )
+                      ),
+                    ],
+                  });
+                  return;
+                }
           }
           if (clientPermissions?.length) {
-            // tslint:disable-next-line: prefer-for-of
             for (let i = 0; i < clientPermissions.length; i++) {
               const hasPermission = message.guild?.me?.permissions.has(
                 clientPermissions[i]

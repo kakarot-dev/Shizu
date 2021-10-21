@@ -40,7 +40,7 @@ abstract class MessageEvent extends Event {
     const data = this.client.cache.getSuggestChannel(message.guild.id);
     if (!data) return;
     else if (data) {
-      const channel = message.guild.channels.cache.get(
+      const channel = await message.guild.channels.fetch(
         `${BigInt(data)}`
       ) as TextChannel;
       if (channel) {
@@ -80,15 +80,15 @@ abstract class MessageEvent extends Event {
           });
           await message.delete();
         } else if (!channel) {
-          delete this.client.cache.data.get(message.guild.id)?.suggestChannelId
-          await this.client.prisma.server.update({
+          const data = await this.client.prisma.server.update({
             where: {
               id: BigInt(message.guild.id)
             },
             data: {
               suggestChannelId: null
             }
-          })
+          });
+          this.client.cache.data.set(message.guild.id, data)
         }
       }
     }

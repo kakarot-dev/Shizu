@@ -79,6 +79,7 @@ abstract class HelpCommand extends Command {
         embeds: [embed],
         components: [row],
       });
+
     } else {
       embed
         .setColor("RANDOM")
