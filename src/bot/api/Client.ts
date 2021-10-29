@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import {Client, Collection, Intents, ClientUser, Options, Guild} from "discord.js";
+import {Client, Collection, Intents, Options, Guild, ClientUser} from "discord.js";
 import {
   CommandRegistry,
   EventRegistry,
@@ -37,8 +37,8 @@ class Bot extends Client {
   public fortnite = new Ft(process.env.FORTTOKEN ?? "test");
   public anischedule = new Anischedule(this);
   public waifu = new waifu(this);
-  public rollbar: Rollbar
-  user: ClientUser;
+  declare user: ClientUser
+  public rollbar: Rollbar;
   public constructor() {
     super({
       /* Discord JS Client Options */

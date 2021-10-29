@@ -1,14 +1,23 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import Command from "../../struct/Command";
-import { Message, MessageEmbed } from "discord.js";
+import {
+    GuildMember,
+    Message,
+    MessageEmbed,
+    NewsChannel,
+    TextChannel,
+    ThreadChannel,
+    Channel,
+    GuildChannel
+} from "discord.js";
 
-abstract class DiscordJsCommand extends Command {
+abstract class PermissionsCommand extends Command {
   protected constructor() {
     super({
       name: "permissionsfor",
       aliases: ["perms", "permsfor"],
       description: "Find out the perms",
-      usage: "<prefix>perms <search term>",
+      usage: "<prefix>perms [channel mention] [member mention/id]",
       category: "info",
       cooldown: 5,
       ownerOnly: false,
@@ -20,15 +29,25 @@ abstract class DiscordJsCommand extends Command {
   }
 
   public async exec(message: Message, args: string[]) {
-    let member;
+    let member: GuildMember | undefined;
+    let channel:  Channel | undefined;
     if (message.channel.type === "DM") return;
-    if (!args[0]) member = message.member;
-    else if (message.mentions.members?.first())
-      member = message.mentions.members?.first();
-    else member = await message.guild?.members.cache.get(`${BigInt(args[0])}`);
+      const argIndex: number = message.mentions.channels.first() ? 1 : 0
+      if (!args[0] || !args[1]) {
+          member = message.member as GuildMember;
+      }
+      if (message.mentions.members?.first()) member = message.mentions.members?.first();
+      else if (!member) member = message.guild?.members.cache.get(`${BigInt(args[argIndex])}`) || (await message.guild?.members.fetch(args[argIndex]));
     if (!member) return;
+    channel = message.mentions.channels.filter(channel => {
+        if (channel instanceof TextChannel || channel instanceof NewsChannel || channel instanceof ThreadChannel) {
+            return true
+        }
+        else return false
+    }).first();
+    if (!channel) channel = message.channel
     const sp = member.permissions.serialize();
-    const cp = message.channel.permissionsFor(member).serialize();
+    const cp = (channel as GuildChannel).permissionsFor(member).serialize();
 
     return message.channel.send({
       embeds: [
@@ -38,7 +57,7 @@ abstract class DiscordJsCommand extends Command {
           .setDescription(
             [
               "\\♨️ - This Server",
-              "\\#️⃣ - The Current Channel",
+              "\\#️⃣ - <#" + (channel as GuildChannel).id + ">",
               "```properties",
               "♨️ | #️⃣ | Permission",
               "========================================",
@@ -61,4 +80,4 @@ abstract class DiscordJsCommand extends Command {
     });
   }
 }
-export default DiscordJsCommand;
+export default PermissionsCommand;

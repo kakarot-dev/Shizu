@@ -46,7 +46,6 @@ abstract class DiscordJsCommand extends Command {
 
 **3) Other than Discord, do we share your data with any 3rd parties?**
    No, we do not share data with any 3rd parties!
-   However, if requested by law enforcement, we will legally need to disclose that information.
 
 **4) How can users get data removed, or how can users contact the bot owner?**
    They can contact me, Kakarot#8194

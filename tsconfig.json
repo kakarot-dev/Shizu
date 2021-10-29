@@ -5,7 +5,7 @@
      "rootDir": "src",
      "outDir": "dist",
      "module": "commonjs",
-     "target": "es2020",
+     "target": "esnext",
      "moduleResolution": "node",
      "types": [
        "@types/moment-duration-format",

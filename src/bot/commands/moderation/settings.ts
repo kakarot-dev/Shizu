@@ -58,7 +58,7 @@ abstract class SettingsCommand extends Command {
     }
     private messages: Collection<string, Message> = new Collection<string, Message>();
     private selected_channel:  Collection<string, TextChannel> = new Collection<string, TextChannel>();
-    private selected_role: Collection<string, [Role] | Role> = new Collection<string, [Role] | Role>()
+    private selected_role: Collection<string, Role[] | Role> = new Collection<string, Role[] | Role>()
     public async exec(message: Message): Promise<void> {
         const get_msg = this.messages.get(message.guild?.id as string);
         if (get_msg) {
@@ -776,27 +776,28 @@ abstract class SettingsCommand extends Command {
             return true;
         };
         const message = interaction.message as Message
-        const modr_save = new MessageEmbed()
+        const suggest_embed = new MessageEmbed()
             .setColor("GREEN")
             .setTitle("Suggest Module")
             .setDescription(stripIndents(`
-           Add mod roles which allows users to use permission locked commands
+            Allow members to suggest stuff for the server by setting a specific channel aside for suggestions.
+            Members can suggest using the slash command or just by typing in that channel.
             `))
         const buttons = new MessageActionRow()
             .addComponents([
                 new MessageButton()
                     .setDisabled(!!data.suggestChannelId)
-                    .setLabel('Add')
+                    .setLabel('Enable')
                     .setStyle('SUCCESS')
                     .setCustomId('enable'),
                 new MessageButton()
                     .setDisabled(!data.suggestChannelId)
-                    .setLabel('Remove')
+                    .setLabel('Disable')
                     .setStyle('DANGER')
                     .setCustomId('disable')
             ])
         await message.edit({
-            embeds: [modr_save],
+            embeds: [suggest_embed],
             components: [buttons]
         });
         const button_collector = message.createMessageComponentCollector({
@@ -820,22 +821,20 @@ abstract class SettingsCommand extends Command {
                         const msg_filter = async (coll_message: Message) => {
                             const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
                             if (coll_message.author.id !== get_msg.author.id) return false;
-                            const roles: [string] = [...coll_message.content.split(', ').filter(async value => {
-
-                            }), ...message.mentions.roles.map<string>(role => role.id)]
-                            if (coll_message.content !== "exit") {
+                            const channel = (coll_message.mentions.channels.first() || await coll_message.guild?.channels.fetch(coll_message.content)) as TextChannel;
+                            if ((!channel || !channel.guild || channel.type !== "GUILD_TEXT") && coll_message.content !== "exit") {
                                 await coll_message.reply({
                                     content: `I cannot find the channel you have specified! Make sure its a text channel`
                                 });
                                 return false;
                             }
+                            if (coll_message.content !== "exit") this.selected_channel.set(`${channel.guild.id}`, channel as TextChannel)
                             return true
                         }
                         await message.edit({
                             embeds: [
                                 new MessageEmbed()
-                                    .setDescription('**Adding roles to the modroles**\n\nPlease send a role mentions/id seperated with `, `')
-                                    .setImage('https://cdn.upload.systems/uploads/I7GdQDBG.png')
+                                    .setDescription('**Setting a Channel for the Suggest Module**\n\nPlease send a channel mention  or its id.')
                                     .setColor('DARK_BLUE')
                                     .setFooter(`Type exit to leave the menu`)
                             ],
@@ -895,7 +894,7 @@ abstract class SettingsCommand extends Command {
                         await message.edit({
                             embeds: [
                                 new MessageEmbed()
-                                    .setDescription('**Disabling the Suggest module now.**')
+                                    .setDescription('**Disabling the waifu module now.**')
                                     .setColor('RED')
                             ],
                             components: []
@@ -1351,7 +1350,7 @@ abstract class SettingsCommand extends Command {
         const message = interaction.message as Message
         const modr_save = new MessageEmbed()
             .setColor("GREEN")
-            .setTitle("Mod roles")
+            .setTitle("Mod Roles")
             .setDescription(stripIndents(`
            Add mod roles which allows users to use permission locked commands
             `))
@@ -1393,18 +1392,27 @@ abstract class SettingsCommand extends Command {
                         const msg_filter = async (coll_message: Message) => {
                             const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
                             if (coll_message.author.id !== get_msg.author.id) return false;
-                            const roles: string[] = [...coll_message.content.split(', ').filter(async value => {
-                                const role = await coll_message.guild?.roles.fetch(value);
-                                if (role) return true;
-                                else return false;
-                            }), ...message.mentions.roles.map<string>(role => role.id)];
-                            console.log(roles)
-                            if (coll_message.content !== "exit") {
+                            const string_roles: string[] = [...coll_message.content.split(', '), ...coll_message.mentions.roles.map<string>(role => role.id)]
+                            let roles = await Promise.all(string_roles.map(value => {
+                                try {
+                                    return coll_message.guild?.roles.fetch(value);
+                                } catch (_) {
+                                    return Promise.resolve(undefined);
+                                }
+                            }));
+                            roles = roles.filter(Boolean);
+
+                            if ((!roles.length) && coll_message.content !== "exit") {
                                 await coll_message.reply({
-                                    content: `I cannot find the channel you have specified! Make sure its a text channel`
+                                    embeds: [
+                                        new MessageEmbed()
+                                            .setColor('RED')
+                                            .setDescription(`The roles you specifed is all invalid! Please specify a valid role`)
+                                    ]
                                 });
                                 return false;
                             }
+                            this.selected_role.set(coll_message.guild?.id as string, roles as Role[]);
                             return true
                         }
                         await message.edit({
@@ -1435,33 +1443,35 @@ abstract class SettingsCommand extends Command {
                             if (!this.selected_channel) throw {
                                 message: "Code erroring in line 285"
                             }
-                            const get_channel = this.selected_channel.get(`${message.guild?.id}`)
-                            const saved_data = await this.client.prisma.server.update({
-                                where: {
-                                    id: BigInt(message.guild?.id as string)
-                                },
-                                data: {
-                                    suggestChannelId: get_channel?.id
+                            const get_roles = this.selected_role.get(`${message.guild?.id}`)
+                            if (get_roles && get_roles instanceof Array) {
+                                const saved_data = await this.client.prisma.server.update({
+                                    where: {
+                                        id: BigInt(message.guild?.id as string)
+                                    },
+                                    data: {
+                                        modRoles: get_roles.map(role => role.id) as string[] || []
+                                    }
+                                }).catch(() => null);
+                                if (!saved_data) {
+                                    message.channel.send({
+                                        embeds: [
+                                            {
+                                                title: "Error in saving to db! \nPlease try it again\nYou can report this to the devs",
+                                                color: "RED"
+                                            }
+                                        ],
+                                        components: []
+                                    })
                                 }
-                            }).catch(() => null);
-                            if (!saved_data) {
-                                message.channel.send({
-                                    embeds: [
-                                        {
-                                            title: "Error in saving to db! \nPlease try it again\nYou can report this to the devs",
-                                            color: "RED"
-                                        }
-                                    ],
-                                    components: []
-                                })
-                            }
-                            else {
-                                this.client.cache.data.set(`${saved_data?.id}`, saved_data as guild)
-                                this.selected_channel.delete(`${saved_data.id}`)
-                                await message.delete();
-                                this.messages.delete(`${message.guild?.id as string}`);
-                                await this.exec(get_msg);
-                                return
+                                else {
+                                    this.client.cache.data.set(`${saved_data?.id}`, saved_data as guild)
+                                    this.selected_channel.delete(`${saved_data.id}`)
+                                    await message.delete();
+                                    this.messages.delete(`${message.guild?.id as string}`);
+                                    await this.exec(get_msg);
+                                    return
+                                }
                             }
                         })
                     }
