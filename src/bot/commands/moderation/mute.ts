@@ -33,15 +33,15 @@ abstract class MuteCommand extends Command {
       message.member &&
       message.member.roles.highest.position <= target.roles.highest.position
     ) {
-      if (message.guild?.ownerId !== message.author.id)
+      if (message.guild?.ownerId !== message.author.id || target.id === message.guild?.ownerId)
         return message.reply({
           content: `The targeted Member aka ${target} is your comarade or is higher than you`,
         });
     }
     const time = ms(args[1]);
-    if (isNaN(time))
+    if (isNaN(time) || time > 31557600000)
       return message.reply({
-        content: "Pls give me a valid time to mute the person",
+        content: "Pls give me a valid time to mute the person. It should be less than 1 year",
       });
     let reason = args.slice(2).join(" ");
     if (!reason) reason = "triggering the mods";

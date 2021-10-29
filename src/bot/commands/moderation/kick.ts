@@ -53,7 +53,7 @@ abstract class KickCommand extends Command {
       message.member &&
       message.member?.roles?.highest.position <= target.roles.highest.position
     ) {
-      if (message.guild?.ownerId !== message.author.id)
+      if (message.guild?.ownerId !== message.author.id || target.id === message.guild?.ownerId)
         return message.reply({
           content: `The targeted Member aka ${target} is your comarade or is higher than you`,
         });

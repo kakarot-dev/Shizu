@@ -279,7 +279,7 @@ export class Anischedule {
     }
     console.group('Anischedule')
     for (const entry of res.data.Page.airingSchedules.filter(
-      (e) => !this.queuedNotifications.includes(e.id)
+      (e) => !this.queuedNotifications.includes(Number(e.id))
     )) {
       const date = new Date(entry.airingAt * 1e3);
       const entry_t = Object.values(entry.media.title).filter(Boolean)[0];
@@ -330,8 +330,8 @@ export class Anischedule {
     );
     const embed = this.getAnnouncementEmbed(entry, date);
     const list = await this.client.prisma.guildWatchList.findMany({}).catch(() => []);
-    for (const guild of list.filter((x) => x.data.includes(entry.media.id))) {
-      const channel = this.client.channels.cache.get(
+    for (const guild of list.filter((x) => x.data.includes(BigInt(entry.media.id)))) {
+      const channel = await this.client.channels.fetch(
         guild.channelId as string
       ) as TextChannel;
       const isValCh = true;
@@ -369,7 +369,6 @@ export class Anischedule {
           )
         )
         .catch((err) => console.error(err));
-      //.catch(error => console.log(`\x1b[35m[SHARD_${this.client.shard?.ids.join(' ')}] \x1b[31m[Shizu]x1b[0m: Announcement for \x1b[36m${entry_t} \x1b[31mfailed\x1b[0m: ${error.name}`));
     }
       console.groupEnd();
     return;

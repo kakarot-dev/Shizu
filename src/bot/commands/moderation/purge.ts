@@ -11,7 +11,7 @@ abstract class PurgeCommand extends Command {
       description: "Purge Messages",
       usage: "<prefix>purge <number>",
       category: "mods",
-      cooldown: 0,
+      cooldown: 10,
       ownerOnly: false,
       guildOnly: true,
       requiredArgs: 0,

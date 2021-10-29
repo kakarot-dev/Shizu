@@ -24,7 +24,7 @@ abstract class ChannelCommand extends Command {
       usage:
         "<prefix>channel <delete/create/clone> [if create= channel name == if delete = channel tag == if clone = channel tag]",
       category: "mods",
-      cooldown: 0,
+      cooldown: 10,
       ownerOnly: false,
       guildOnly: true,
       requiredArgs: 1,

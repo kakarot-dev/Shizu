@@ -68,6 +68,7 @@ abstract class HelpCommand extends Command {
         .setDescription(
           stripIndents(`
     			**Name:** ${command.name}
+    			**Cooldown:** ${command.cooldown}
     			**Usage:** ${(command.usage ? command.usage : "None").replace("<prefix>", prefix)}
     			**Aliases:** ${
             command.aliases?.length ? command.aliases.join(", ") : "None"
@@ -77,7 +78,6 @@ abstract class HelpCommand extends Command {
         );
       return message.channel.send({
         embeds: [embed],
-        components: [row],
       });
 
     } else {
@@ -95,22 +95,7 @@ abstract class HelpCommand extends Command {
 		Click on the buttons below to check out the commands in each category.
 		\`\`\``)
         );
-      //   for (const category of categories) {
-      //
-      //     const commandNames: Array<string> = [];
-      //     const commands = this.client.commands.filter(
-      //       (c) => c.category === category
-      //     );
-      //     for (const command of commands) {
-      //       if (!commandNames.includes(command[1].name)) {
-      //         commandNames.push(command[1].name);
-      //       }
-      //     }
-      //     embed.addField(
-      //       category ?? "Any",
-      //       commandNames.map((c) => `\`${c}\``).join(", ")
-      //     );
-      //   }
+
       message.channel.send({
         embeds: [embed],
         components: [row],

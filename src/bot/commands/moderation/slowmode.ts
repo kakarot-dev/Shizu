@@ -3,13 +3,13 @@
 import Command from "../../struct/Command";
 import { Message, MessageEmbed, TextChannel } from "discord.js";
 
-abstract class PurgeCommand extends Command {
+abstract class SlowmodeCommand extends Command {
   protected constructor() {
     super({
       name: "slowmode",
       aliases: ["slow"],
-      description: "Purge Messages",
-      usage: "<prefix>purge <number>",
+      description: "Add/Remove slowmode for a channel",
+      usage: "<prefix>slow <number>",
       category: "mods",
       cooldown: 0,
       ownerOnly: false,
@@ -102,4 +102,4 @@ abstract class PurgeCommand extends Command {
     }
   }
 }
-export default PurgeCommand;
+export default SlowmodeCommand;

@@ -135,8 +135,8 @@ abstract class SettingsCommand extends Command {
                         break;
                     case "muteRoleId": await this.mute_save(data as guild, interaction);
                         break;
-                    case "modRoles": await this.modr_save(data as guild, interaction);
-                        break;
+                    // case "modRoles": await this.modr_save(data as guild, interaction);
+                    //     break;
                 }
             }
         })
@@ -204,13 +204,13 @@ abstract class SettingsCommand extends Command {
                         `),
                     inline: true
                 },
-                {
-                    name: "Mod Roles",
-                    value: stripIndents(`
-                       ${data.modRoles?.length ? `${data.modRoles.map<string>(id => `<@&${id}>`).join(' ')}` : `${emojis.wrong} Disabled`}
-                        `),
-                    inline: (data.modRoles?.length || 0) < 1
-                }
+                // {
+                //     name: "Mod Roles",
+                //     value: stripIndents(`
+                //        ${data.modRoles?.length ? `${data.modRoles.map<string>(id => `<@&${id}>`).join(' ')}` : `${emojis.wrong} Disabled`}
+                //         `),
+                //     inline: (data.modRoles?.length || 0) < 1
+                // }
             ])
             .setColor(end ? "RED" : "GREEN")
             .setFooter(`GuildID: ${guild.id}`)
@@ -268,12 +268,12 @@ abstract class SettingsCommand extends Command {
                             value: "muter",
                             emoji: emojis.settings.mute
                         },
-                        {
-                            label: "Mod Roles",
-                            description: "Add roles to use mod commands",
-                            value: "modr",
-                            emoji: emojis.settings.mod
-                        }
+                        // {
+                        //     label: "Mod Roles",
+                        //     description: "Add roles to use mod commands",
+                        //     value: "modr",
+                        //     emoji: emojis.settings.mod
+                        // }
                     ])
             )
         return select_menus_1
@@ -1221,7 +1221,6 @@ abstract class SettingsCommand extends Command {
                             const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
                             if (coll_message.author.id !== get_msg.author.id) return false;
                             const role = (coll_message.mentions.roles.first() || await coll_message.guild?.roles.fetch(coll_message.content));
-                            console.log(role)
                             if (!role && coll_message.content !== "exit") {
                                 await coll_message.reply({
                                     content: `I cannot find the Role you have specified! Make sure its a Role below ${this.client.user.username}'s highest role`
@@ -1331,180 +1330,180 @@ abstract class SettingsCommand extends Command {
             }
         })
     }
-    async modr_save(data: guild, interaction: MessageComponentInteraction) {
-        const button_filter = async (interaction: MessageComponentInteraction) => {
-            const get_id = this.messages.get(interaction.guild?.id as string)
-            if (
-                (interaction.customId === "enable" ||
-                    interaction.customId === "disable") &&
-                interaction.user.id !== get_id?.author.id
-            ) {
-                await interaction.reply({
-                    content: `You cant use this. If you are a mod, Please use the command by youself.`,
-                    ephemeral: true,
-                });
-                return false;
-            }
-            return true;
-        };
-        const message = interaction.message as Message
-        const modr_save = new MessageEmbed()
-            .setColor("GREEN")
-            .setTitle("Mod Roles")
-            .setDescription(stripIndents(`
-           Add mod roles which allows users to use permission locked commands
-            `))
-        const buttons = new MessageActionRow()
-            .addComponents([
-                new MessageButton()
-                    .setDisabled(!!data.suggestChannelId)
-                    .setLabel('Add')
-                    .setStyle('SUCCESS')
-                    .setCustomId('enable'),
-                new MessageButton()
-                    .setDisabled(!data.suggestChannelId)
-                    .setLabel('Remove')
-                    .setStyle('DANGER')
-                    .setCustomId('disable')
-            ])
-        await message.edit({
-            embeds: [modr_save],
-            components: [buttons]
-        });
-        const button_collector = message.createMessageComponentCollector({
-            filter: button_filter,
-            time: 1000 * 15,
-            max: 1
-        })
-        button_collector.on('end', async (collection: Collection<string, MessageComponentInteraction>) => {
-            const decision = collection.first()?.customId;
-            const message_rev = collection.first()?.message as Message;
-            if (!decision || !message_rev) {
-                const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
-                await message.delete();
-                this.messages.delete(`${message.guild?.id as string}`);
-                await this.exec(get_msg);
-                return
-            }
-            else {
-                switch (decision) {
-                    case 'enable': {
-                        const msg_filter = async (coll_message: Message) => {
-                            const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
-                            if (coll_message.author.id !== get_msg.author.id) return false;
-                            const string_roles: string[] = [...coll_message.content.split(', '), ...coll_message.mentions.roles.map<string>(role => role.id)]
-                            let roles = await Promise.all(string_roles.map(value => {
-                                try {
-                                    return coll_message.guild?.roles.fetch(value);
-                                } catch (_) {
-                                    return Promise.resolve(undefined);
-                                }
-                            }));
-                            roles = roles.filter(Boolean);
-
-                            if ((!roles.length) && coll_message.content !== "exit") {
-                                await coll_message.reply({
-                                    embeds: [
-                                        new MessageEmbed()
-                                            .setColor('RED')
-                                            .setDescription(`The roles you specifed is all invalid! Please specify a valid role`)
-                                    ]
-                                });
-                                return false;
-                            }
-                            this.selected_role.set(coll_message.guild?.id as string, roles as Role[]);
-                            return true
-                        }
-                        await message.edit({
-                            embeds: [
-                                new MessageEmbed()
-                                    .setDescription('**Adding roles to the modroles**\n\nPlease send a role mentions/id seperated with `, `')
-                                    .setImage('https://cdn.upload.systems/uploads/I7GdQDBG.png')
-                                    .setColor('DARK_BLUE')
-                                    .setFooter(`Type exit to leave the menu`)
-                            ],
-                            components: []
-                        });
-                        const msg_collector = message.channel.createMessageCollector({
-                            filter: msg_filter,
-                            time: 1000 * 60,
-                            max: 1
-                        })
-                        msg_collector.on('end', async (collection: Collection<string, Message>) => {
-                            const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
-                            const msg = collection.first()?.content;
-                            const is_exit: boolean = msg === "exit"
-                            if (!msg || is_exit) {
-                                await message.delete();
-                                this.messages.delete(`${message.guild?.id as string}`);
-                                await this.exec(get_msg);
-                                return
-                            }
-                            if (!this.selected_channel) throw {
-                                message: "Code erroring in line 285"
-                            }
-                            const get_roles = this.selected_role.get(`${message.guild?.id}`)
-                            if (get_roles && get_roles instanceof Array) {
-                                const saved_data = await this.client.prisma.server.update({
-                                    where: {
-                                        id: BigInt(message.guild?.id as string)
-                                    },
-                                    data: {
-                                        modRoles: get_roles.map(role => role.id) as string[] || []
-                                    }
-                                }).catch(() => null);
-                                if (!saved_data) {
-                                    message.channel.send({
-                                        embeds: [
-                                            {
-                                                title: "Error in saving to db! \nPlease try it again\nYou can report this to the devs",
-                                                color: "RED"
-                                            }
-                                        ],
-                                        components: []
-                                    })
-                                }
-                                else {
-                                    this.client.cache.data.set(`${saved_data?.id}`, saved_data as guild)
-                                    this.selected_channel.delete(`${saved_data.id}`)
-                                    await message.delete();
-                                    this.messages.delete(`${message.guild?.id as string}`);
-                                    await this.exec(get_msg);
-                                    return
-                                }
-                            }
-                        })
-                    }
-                        break;
-                    case 'disable': {
-                        const get_msg = this.messages.get(`${message.guild?.id}`) as Message
-                        await message.edit({
-                            embeds: [
-                                new MessageEmbed()
-                                    .setDescription('**Disabling the Suggest module now.**')
-                                    .setColor('RED')
-                            ],
-                            components: []
-                        });
-                        const saved_data = await this.client.prisma.server.update({
-                            where: {
-                                id: BigInt(message.guild?.id as string)
-                            },
-                            data: {
-                                suggestChannelId: null
-                            }
-                        })
-                        this.client.cache.data.set(`${saved_data?.id}`, saved_data as guild)
-                        this.selected_channel.delete(`${saved_data.id}`)
-                        await message.delete();
-                        this.messages.delete(`${message.guild?.id as string}`);
-                        await this.exec(get_msg);
-                    }
-                        break;
-
-                }
-            }
-        })
-    }
+    // async modr_save(data: guild, interaction: MessageComponentInteraction) {
+    //     const button_filter = async (interaction: MessageComponentInteraction) => {
+    //         const get_id = this.messages.get(interaction.guild?.id as string)
+    //         if (
+    //             (interaction.customId === "enable" ||
+    //                 interaction.customId === "disable") &&
+    //             interaction.user.id !== get_id?.author.id
+    //         ) {
+    //             await interaction.reply({
+    //                 content: `You cant use this. If you are a mod, Please use the command by youself.`,
+    //                 ephemeral: true,
+    //             });
+    //             return false;
+    //         }
+    //         return true;
+    //     };
+    //     const message = interaction.message as Message
+    //     const modr_save = new MessageEmbed()
+    //         .setColor("GREEN")
+    //         .setTitle("Mod Roles")
+    //         .setDescription(stripIndents(`
+    //        Add mod roles which allows users to use permission locked commands
+    //         `))
+    //     const buttons = new MessageActionRow()
+    //         .addComponents([
+    //             new MessageButton()
+    //                 .setDisabled((data.modRoles?.length || 0) >= 5)
+    //                 .setLabel('Add')
+    //                 .setStyle('SUCCESS')
+    //                 .setCustomId('enable'),
+    //             new MessageButton()
+    //                 .setDisabled(!data.modRoles?.length)
+    //                 .setLabel('Remove')
+    //                 .setStyle('DANGER')
+    //                 .setCustomId('disable')
+    //         ])
+    //     await message.edit({
+    //         embeds: [modr_save],
+    //         components: [buttons]
+    //     });
+    //     const button_collector = message.createMessageComponentCollector({
+    //         filter: button_filter,
+    //         time: 1000 * 15,
+    //         max: 1
+    //     })
+    //     button_collector.on('end', async (collection: Collection<string, MessageComponentInteraction>) => {
+    //         const decision = collection.first()?.customId;
+    //         const message_rev = collection.first()?.message as Message;
+    //         if (!decision || !message_rev) {
+    //             const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
+    //             await message.delete();
+    //             this.messages.delete(`${message.guild?.id as string}`);
+    //             await this.exec(get_msg);
+    //             return
+    //         }
+    //         else {
+    //             switch (decision) {
+    //                 case 'enable': {
+    //                     const msg_filter = async (coll_message: Message) => {
+    //                         const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
+    //                         if (coll_message.author.id !== get_msg.author.id) return false;
+    //                         const string_roles: string[] = [...coll_message.content.split(', '), ...coll_message.mentions.roles.map<string>(role => role.id)]
+    //                         let roles = await Promise.all(string_roles.map(value => {
+    //                             try {
+    //                                 return coll_message.guild?.roles.fetch(value);
+    //                             } catch (_) {
+    //                                 return Promise.resolve(undefined);
+    //                             }
+    //                         }));
+    //                         roles = roles.filter(Boolean);
+    //
+    //                         if ((!roles.length) && coll_message.content !== "exit") {
+    //                             await coll_message.reply({
+    //                                 embeds: [
+    //                                     new MessageEmbed()
+    //                                         .setColor('RED')
+    //                                         .setDescription(`The roles you specifed is all invalid! Please specify a valid role`)
+    //                                 ]
+    //                             });
+    //                             return false;
+    //                         }
+    //                         this.selected_role.set(coll_message.guild?.id as string, roles as Role[]);
+    //                         return true
+    //                     }
+    //                     await message.edit({
+    //                         embeds: [
+    //                             new MessageEmbed()
+    //                                 .setDescription('**Adding roles to the modroles**\n\nPlease send a role mentions/id seperated with `, `')
+    //                                 .setImage('https://cdn.upload.systems/uploads/I7GdQDBG.png')
+    //                                 .setColor('DARK_BLUE')
+    //                                 .setFooter(`Type exit to leave the menu`)
+    //                         ],
+    //                         components: []
+    //                     });
+    //                     const msg_collector = message.channel.createMessageCollector({
+    //                         filter: msg_filter,
+    //                         time: 1000 * 60,
+    //                         max: 1
+    //                     })
+    //                     msg_collector.on('end', async (collection: Collection<string, Message>) => {
+    //                         const get_msg = this.messages.get(interaction.guild?.id as string) as Message;
+    //                         const msg = collection.first()?.content;
+    //                         const is_exit: boolean = msg === "exit"
+    //                         if (!msg || is_exit) {
+    //                             await message.delete();
+    //                             this.messages.delete(`${message.guild?.id as string}`);
+    //                             await this.exec(get_msg);
+    //                             return
+    //                         }
+    //                         if (!this.selected_channel) throw {
+    //                             message: "Code erroring in line 285"
+    //                         }
+    //                         const get_roles = this.selected_role.get(`${message.guild?.id}`)
+    //                         if (get_roles && get_roles instanceof Array) {
+    //                             const saved_data = await this.client.prisma.server.update({
+    //                                 where: {
+    //                                     id: BigInt(message.guild?.id as string)
+    //                                 },
+    //                                 data: {
+    //                                     modRoles: get_roles.map(role => role.id) as string[] || []
+    //                                 }
+    //                             }).catch(() => null);
+    //                             if (!saved_data) {
+    //                                 message.channel.send({
+    //                                     embeds: [
+    //                                         {
+    //                                             title: "Error in saving to db! \nPlease try it again\nYou can report this to the devs",
+    //                                             color: "RED"
+    //                                         }
+    //                                     ],
+    //                                     components: []
+    //                                 })
+    //                             }
+    //                             else {
+    //                                 this.client.cache.data.set(`${saved_data?.id}`, saved_data as guild)
+    //                                 this.selected_channel.delete(`${saved_data.id}`)
+    //                                 await message.delete();
+    //                                 this.messages.delete(`${message.guild?.id as string}`);
+    //                                 await this.exec(get_msg);
+    //                                 return
+    //                             }
+    //                         }
+    //                     })
+    //                 }
+    //                     break;
+    //                 case 'disable': {
+    //                     const get_msg = this.messages.get(`${message.guild?.id}`) as Message
+    //                     await message.edit({
+    //                         embeds: [
+    //                             new MessageEmbed()
+    //                                 .setDescription('**Disabling the Suggest module now.**')
+    //                                 .setColor('RED')
+    //                         ],
+    //                         components: []
+    //                     });
+    //                     const saved_data = await this.client.prisma.server.update({
+    //                         where: {
+    //                             id: BigInt(message.guild?.id as string)
+    //                         },
+    //                         data: {
+    //                             suggestChannelId: null
+    //                         }
+    //                     })
+    //                     this.client.cache.data.set(`${saved_data?.id}`, saved_data as guild)
+    //                     this.selected_channel.delete(`${saved_data.id}`)
+    //                     await message.delete();
+    //                     this.messages.delete(`${message.guild?.id as string}`);
+    //                     await this.exec(get_msg);
+    //                 }
+    //                     break;
+    //
+    //             }
+    //         }
+    //     })
+    // }
 }
 export default SettingsCommand;
