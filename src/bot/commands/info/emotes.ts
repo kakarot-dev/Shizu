@@ -29,7 +29,7 @@ abstract class EmotesCommand extends Command {
             [...guild.emojis.cache.values()]
               .filter((x) => x.id !== guild.id)
               .sort((A, B) => B.createdTimestamp - A.createdTimestamp),
-            12
+            15
           ).map((x) => {
             return {
               name: "\u200b",
