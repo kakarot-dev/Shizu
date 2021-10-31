@@ -33,7 +33,7 @@ export interface InteractionCommandOptions {
   options?: ApplicationCommandOptionData[] | undefined;
   exec: (
     interactions: Interaction,
-    args: CommandInteractionOptionResolver
+    args: Omit<CommandInteractionOptionResolver, "getMessage" | "getFocused">
   ) => Promise<void>;
 }
 

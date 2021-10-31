@@ -23,7 +23,7 @@ abstract class InteractionCommand {
 
   public abstract exec(
     interactions: Interaction,
-    args: CommandInteractionOptionResolver
+    args:  Omit<CommandInteractionOptionResolver, "getMessage" | "getFocused">
   ): Promise<void>;
 }
 
