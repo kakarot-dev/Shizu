@@ -6,6 +6,7 @@ import { sync } from "glob";
 import { resolve } from "path";
 import Bot from "../../api/Client";
 import Interaction from "../../struct/Interaction";
+// import {ApplicationCommandData} from 'discord.js'
 
 const registerInteraction: Function = (client: Bot) => {
   const interactionFiles = sync(resolve("dist/bot/interactions/Slash/**/*"));

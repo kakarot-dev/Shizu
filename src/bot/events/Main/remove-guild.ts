@@ -12,6 +12,7 @@ abstract class GuildMemberAddEvent extends Event {
     // await guild.findOneAndDelete({
     //   guildId: server.id,
     // });
+    if (!this.client.isReady()) return
     await this.client.prisma.afk.deleteMany({
       where: {
         id: BigInt(server.id)

@@ -54,7 +54,7 @@ class Bot extends Client {
         MessageManager: 100, // This is default.
         UserManager: 10000,
         GuildMemberManager: 3000,
-        PresenceManager: 0, // Add more class names here.
+        PresenceManager: 0,
       }),
       partials: ["USER", "CHANNEL", "GUILD_MEMBER", "MESSAGE", "REACTION"],
       messageCacheLifetime: 700,

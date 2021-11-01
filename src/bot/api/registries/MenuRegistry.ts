@@ -5,7 +5,7 @@ import { sync } from "glob";
 import { resolve } from "path";
 import Bot from "../../api/Client";
 import Menu from "../../struct/Menu";
-// import { ApplicationCommandData } from 'discord.js'
+// import {ApplicationCommandData} from "discord.js";
 
 const registerMenu: Function = (client: Bot) => {
     const interactionFiles = sync(resolve("dist/bot/interactions/ContextMenu/**/*"));
@@ -26,7 +26,7 @@ const registerMenu: Function = (client: Bot) => {
                 //await client.guilds.cache.get('851088432859447347')?.commands.create(data);
                 // await client.guilds.cache.get('789800070895763476')?.commands.create(data); // Guild commands
                 // await client.guilds.cache.get('789800070895763476')?.commands.set([]); // Remove all guild commands
-                // await client.application?.commands.create(data); // Global commands
+                 // await client.application?.commands.create(data); // Global commands
                 // await client.application?.commands.set([]); // Remove all guild commands
             }
         }
