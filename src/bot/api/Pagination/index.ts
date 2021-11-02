@@ -131,27 +131,28 @@ class Pagination {
   }
 
   buttons(disabled: boolean): MessageActionRow {
-    return new MessageActionRow().addComponents([
+    return new MessageActionRow()
+     .addComponents([
       new MessageButton()
         .setDisabled(disabled)
         .setStyle("PRIMARY")
-        .setEmoji("<:left:865603838290690058>")
-        .setCustomId("<:left:865603838290690058>"),
+        .setEmoji(availableEmojis[0])
+        .setCustomId(availableEmojis[0]),
       new MessageButton()
         .setDisabled(disabled)
         .setStyle("DANGER")
-        .setEmoji("<:pause:865604031849562132>")
-        .setCustomId("<:pause:865604031849562132>"),
+        .setEmoji(availableEmojis[1])
+        .setCustomId(availableEmojis[1]),
       new MessageButton()
         .setDisabled(disabled)
         .setStyle("PRIMARY")
-        .setEmoji("<:right:865603935234293770>")
-        .setCustomId("<:right:865603935234293770>"),
+        .setEmoji(availableEmojis[2])
+        .setCustomId(availableEmojis[2]),
       new MessageButton()
         .setDisabled(disabled)
         .setStyle("DANGER")
-        .setEmoji("<:delete:865604123574927370>")
-        .setCustomId("<:delete:865604123574927370>"),
+        .setEmoji(availableEmojis[3])
+        .setCustomId(availableEmojis[3]),
     ]);
   }
 }
