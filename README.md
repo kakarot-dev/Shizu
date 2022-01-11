@@ -1,5 +1,6 @@
 # THIS IS NOT MAINTAINED AT ALL
-
+Depenedencies are broken, bot wont start unless everything is rewritten
+Feel free to make prs and ping me in discord : Axel.#1110
 
 <h1 align="center"> <img src='https://cdn.discordapp.com/emojis/704814012294234133.png?v=1' height='50'> Shizu.</h1>
 
